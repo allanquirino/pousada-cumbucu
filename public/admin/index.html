@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Gestão · Pousada Bosque Cumbuco</title>
+<link rel="icon" href="../media/favicon.png">
+<style>
+:root{--verde:#86c774;--verde2:#4f8f40;--mata:#16301f;--mata2:#0e2015;--areia:#f5efe2;--areia2:#ebe1cc;--sol:#f2c230;--agua:#2fb5ab;--red:#c4553f;--txt:#1d2a21;--mut:#6b7a6f;--bg:#f6f3ea;--card:#fff;--line:#e5dfcf}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.5 Inter,system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--txt)}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}.who .btn{color:var(--txt)}
+h1{font-size:22px;font-weight:600}h2{font-size:16px;font-weight:600;margin-bottom:12px}h3{font-size:14px;font-weight:600}
+.hidden{display:none!important}
+/* login */
+#login{min-height:100vh;display:grid;place-items:center;background:var(--mata2);padding:20px}
+#login .box{background:#fff;border-radius:18px;padding:32px;width:100%;max-width:400px}
+#login img{width:54px;margin:0 auto 8px;display:block}
+#login h1{text-align:center;margin-bottom:4px}#login p.s{text-align:center;color:var(--mut);margin-bottom:20px}
+.demo{margin-top:18px;font-size:12px;color:var(--mut);background:var(--areia);border-radius:10px;padding:10px 12px}
+.demo button{display:inline;background:none;border:0;color:var(--verde2);font-weight:600;cursor:pointer;padding:0 6px 0 0;text-decoration:underline}
+/* app */
+#app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+aside{background:var(--mata);color:#e9efe6;padding:18px 12px;position:sticky;top:0;height:100vh;overflow:auto;display:flex;flex-direction:column}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 10px 18px}.brand img{width:34px;filter:brightness(0) saturate(100%) invert(76%) sepia(25%) saturate(640%) hue-rotate(61deg)}
+.brand b{letter-spacing:.14em;font-size:13px;display:block}.brand small{color:#9fb5a3;font-size:11px}
+nav a{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;color:#cdd9cf;text-decoration:none;cursor:pointer;margin-bottom:2px}
+nav a:hover{background:rgba(255,255,255,.07)}nav a.on{background:var(--verde);color:var(--mata2);font-weight:600}
+nav a .n{margin-left:auto;background:var(--red);color:#fff;border-radius:99px;font-size:11px;padding:0 7px;font-weight:600}
+.who{margin-top:auto;padding:12px 10px 0;border-top:1px solid rgba(255,255,255,.1);font-size:12px;color:#9fb5a3}
+.who b{display:block;color:#fff;font-size:13px}.who button{margin-top:8px;margin-right:6px}
+main{padding:26px 30px;max-width:1280px;width:100%}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:20px}.head p{color:var(--mut)}
+/* UI */
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}.g5{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}.kpi span{font-size:12px;color:var(--mut)}.kpi b{display:block;font-size:26px;font-weight:600;line-height:1.2}.kpi small{color:var(--mut)}
+.kpi.warn{border-color:var(--red);background:#fff5f2}.kpi.warn b{color:var(--red)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 13px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--verde2)}.btn.p{background:var(--verde2);border-color:var(--verde2);color:#fff}.btn.p:hover{background:#3f7633}
+.btn.d{color:var(--red)}.btn.s{padding:4px 9px;font-size:12px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.row.sp{justify-content:space-between}
+input,select,textarea{border:1px solid #d6cfbb;border-radius:9px;padding:8px 10px;background:#fff;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--verde);border-color:var(--verde2)}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px;font-weight:500}
+.f{display:grid;grid-template-columns:1fr 1fr;gap:12px}.f .full{grid-column:1/-1}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}.tools>*{width:auto;flex:0 1 auto}.tools input{flex:1;min-width:180px}
+table{width:100%;border-collapse:collapse}th{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #f0ebdd;vertical-align:middle}tr.click{cursor:pointer}tr.click:hover td{background:#faf7ee}
+.tw{overflow-x:auto}
+.pill{display:inline-block;border-radius:99px;padding:1px 10px;font-size:11px;font-weight:600;white-space:nowrap}
+.s-pendente{background:#fdf0c9;color:#7a5b00}.s-confirmada{background:#d9efd2;color:#2c6a1f}.s-hospedado{background:#cdeeea;color:#0e6a63}
+.s-finalizada{background:#e6e6e0;color:#555}.s-cancelada{background:#f7d9d2;color:#9b3a28}
+.s-livre,.s-limpo,.s-pronto,.s-pago,.s-realizado{background:#d9efd2;color:#2c6a1f}.s-ocupado,.s-em_andamento,.s-limpando{background:#cdeeea;color:#0e6a63}
+.s-sujo,.s-solicitado,.s-pendente_l{background:#fdf0c9;color:#7a5b00}.s-manutencao,.s-estornado{background:#f7d9d2;color:#9b3a28}.s-bloqueado{background:#dcdcdc;color:#333}.s-confirmado{background:#d9efd2;color:#2c6a1f}
+.rooms{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:12px}
+.room{border:1px solid var(--line);border-left:5px solid var(--verde);background:#fff;border-radius:12px;padding:12px;cursor:pointer}
+.room:hover{box-shadow:0 4px 14px rgba(0,0,0,.08)}.room h3{font-size:20px}.room small{color:var(--mut);display:block;line-height:1.3}
+.room.ocupado{border-left-color:var(--agua)}.room.sujo{border-left-color:var(--sol)}.room.limpando{border-left-color:#e08a2a}.room.manutencao{border-left-color:var(--red)}.room.bloqueado{border-left-color:#777}
+.map{display:grid;gap:2px;font-size:11px;min-width:760px}.map .c{height:26px;border-radius:4px;background:#efeadb;overflow:hidden;white-space:nowrap;padding:4px 5px;font-weight:500}
+.map .h{background:none;height:auto;text-align:center;color:var(--mut);padding:0 0 4px}.map .rn{background:none;font-weight:600;font-size:13px;padding:3px 0}.map .hoje{outline:2px solid var(--sol)}
+.map .r-pendente{background:#f6df97}.map .r-confirmada{background:#a9dc9a}.map .r-hospedado{background:#78d0c8}.map .r-booking{background:#9db8e8}.map .r-bloqueio{background:#888;color:#fff}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-bottom:10px}.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px}.bars div{flex:1;text-align:center;font-size:10px;color:var(--mut)}.bars i{display:block;background:var(--verde);border-radius:4px 4px 0 0;min-height:2px}
+.kan{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;align-items:start}.kan>div{background:#efeadb;border-radius:14px;padding:12px}.kan h3{margin-bottom:10px}
+.task{background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:8px;border:1px solid var(--line)}.task b{font-size:18px}
+.low td:first-child{border-left:3px solid var(--red)}.mut{color:var(--mut)}.red{color:var(--red)}.grn{color:var(--verde2)}
+.alert{background:#fff5f2;border:1px solid #f0c5ba;color:#8a3322;border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.ok{background:#f1f9ee;border-color:#c5e3bb;color:#2c6a1f}
+.mono{font-family:ui-monospace,Menlo,monospace;font-size:12px;word-break:break-all;background:#f4f0e3;border-radius:8px;padding:6px 8px}
+.modal{position:fixed;inset:0;background:rgba(10,20,14,.55);display:none;align-items:flex-start;justify-content:center;padding:4vh 14px;overflow:auto;z-index:20}
+.modal.on{display:flex}.modal .card{width:100%;max-width:640px;margin:0}.modal h2{font-size:18px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--mata);color:#fff;padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw}
+#toast.on{opacity:1}#toast.err{background:var(--red)}
+.mtop{display:none}
+@media(max-width:900px){#app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:column;padding:10px}nav{display:flex;overflow-x:auto;gap:4px;padding-bottom:6px}nav a{white-space:nowrap;margin:0}.who{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:8px}.who b{display:inline}
+  main{padding:16px 14px}.g2,.g3,.g4,.kan,.f{grid-template-columns:1fr}.brand{padding-bottom:8px}}
+</style>
+</head>
+<body>
+<section id="login" class="hidden">
+  <form class="box" id="lf">
+    <img src="../media/arvore.png" alt="" style="filter:brightness(0) saturate(100%) invert(56%) sepia(36%) saturate(560%) hue-rotate(62deg)">
+    <h1>Pousada Bosque</h1><p class="s">Sistema de gestão · acesso restrito</p>
+    <div style="margin-bottom:12px"><label for="lu">Usuário</label><input id="lu" autocomplete="username" required></div>
+    <div style="margin-bottom:12px"><label for="lp">Senha</label><input id="lp" type="password" autocomplete="current-password" required></div>
+    <div class="red" id="le" style="min-height:20px;margin-bottom:8px"></div>
+    <button class="btn p" style="width:100%;padding:10px">Entrar</button>
+    <div class="demo hidden" id="demo"><b>Contas de demonstração</b> (senha <b>bosque2026</b>):<br>
+      <button type="button" data-u="admin">admin</button><button type="button" data-u="recepcao">recepcao</button><button type="button" data-u="governanta">governanta</button><button type="button" data-u="camareira">camareira</button><button type="button" data-u="manutencao">manutencao</button><button type="button" data-u="financeiro">financeiro</button></div>
+  </form>
+</section>
+
+<div id="app" class="hidden">
+  <aside>
+    <div class="brand"><img src="../media/arvore.png" alt=""><div><b>BOSQUE</b><small>Gestão da pousada</small></div></div>
+    <nav id="nav"></nav>
+    <div class="who"><b id="wn"></b><span id="wr"></span><div><button class="btn s" id="pw">Trocar senha</button><button class="btn s" id="out">Sair</button></div><div style="margin-top:6px"><a href="/" style="color:#9fb5a3">← Ver o site</a></div></div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div class="modal" id="modal"><div class="card" id="mc"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ================= base ================= */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const brl=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+const fmt=d=>d?d.slice(8,10)+"/"+d.slice(5,7):"";const fmtY=d=>d?d.slice(8,10)+"/"+d.slice(5,7)+"/"+d.slice(0,4):"";
+const hoje=()=>new Date().toLocaleDateString("sv-SE",{timeZone:"America/Fortaleza"});
+const addD=(d,n)=>{const x=new Date(d+"T12:00:00");x.setDate(x.getDate()+n);return x.toLocaleDateString("sv-SE")};
+const hm=iso=>iso?new Date(iso).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+const pill=(s,l)=>`<span class="pill s-${esc(s)}">${esc((l||s).replace("_"," "))}</span>`;
+let ME=null,TIPOS=[];
+async function api(m,u,b){
+  const r=await fetch("/api"+u,{method:m,headers:b?{"content-type":"application/json"}:{},body:b?JSON.stringify(b):undefined,credentials:"same-origin"});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401&&u!=="/login"){showLogin();throw new Error(d.erro||"Sessão expirada")}
+  if(!r.ok){const e=new Error(d.erro||"Erro");e.status=r.status;throw e}
+  return d;
+}
+function toast(m,err){const t=$("#toast");t.textContent=m;t.className="on"+(err?" err":"");clearTimeout(t._t);t._t=setTimeout(()=>t.className="",3200)}
+const can=(mod,lvl="r")=>{const p=ME?.perms?.[mod];return lvl==="w"?p==="w":!!p};
+function modal(html){$("#mc").innerHTML=html;$("#modal").classList.add("on")}
+function closeModal(){$("#modal").classList.remove("on")}
+$("#modal").onclick=e=>{if(e.target.id==="modal")closeModal()};
+addEventListener("keydown",e=>{if(e.key==="Escape")closeModal()});
+const guard=fn=>async(...a)=>{try{return await fn(...a)}catch(e){if(e.status!==401)toast(e.message,true)}};
+const A={}; // ações por data-a
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(t&&A[t.dataset.a]){e.stopPropagation();guard(A[t.dataset.a])(t.dataset,t)}});
+
+/* ================= login ================= */
+function showLogin(){fetch("/api/public/config").then(r=>r.json()).then(c=>$("#demo").classList.toggle("hidden",!c.gatewayDemo)).catch(()=>{});ME=null;$("#app").classList.add("hidden");$("#login").classList.remove("hidden");$("#lp").value=""}
+$$("[data-u]").forEach(b=>b.onclick=()=>{$("#lu").value=b.dataset.u;$("#lp").value="bosque2026"});
+$("#lf").onsubmit=async e=>{e.preventDefault();$("#le").textContent="";
+  try{ME=await api("POST","/login",{usuario:$("#lu").value,senha:$("#lp").value});start()}catch(x){$("#le").textContent=x.message}};
+$("#out").onclick=async()=>{await api("POST","/logout",{}).catch(()=>{});showLogin()};
+$("#pw").onclick=()=>modal(`<h2>Trocar senha</h2><div class="f"><div class="full"><label>Senha atual</label><input id="p0" type="password"></div><div class="full"><label>Nova senha (mín. 8 caracteres)</label><input id="p1" type="password"></div></div><div class="row" style="margin-top:14px"><button class="btn p" data-a="savePw">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.savePw=async()=>{await api("POST","/me/senha",{atual:$("#p0").value,nova:$("#p1").value});closeModal();toast("Senha alterada")};
+
+/* ================= navegação ================= */
+const MENU=[["dashboard","Painel","📊","dashboard"],["reservas","Reservas","📖","reservas"],["checkin","Check-in / out","🛎","checkin"],["quartos","Quartos","🛏","quartos"],["limpeza","Limpeza","🧹","limpeza"],["passeios","Passeios","🌴","passeios"],["estoque","Estoque","📦","estoque"],["pagamentos","Pagamentos","💳","pagamentos"],["funcionarios","Funcionários","👥","funcionarios"],["integracoes","Booking / iCal","🔄","integracoes"],["config","Configurações","⚙️","config"]];
+let CUR="";
+async function start(){
+  $("#login").classList.add("hidden");$("#app").classList.remove("hidden");
+  $("#wn").textContent=ME.nome;$("#wr").textContent=ME.roleLabel;
+  TIPOS=(await api("GET","/public/config")).tipos;
+  const items=MENU.filter(m=>can(m[3]));
+  $("#nav").innerHTML=items.map(m=>`<a data-go="${m[0]}">${m[2]} ${m[1]}<span class="n hidden" id="b-${m[0]}"></span></a>`).join("");
+  $$("#nav a").forEach(a=>a.onclick=()=>go(a.dataset.go));
+  go((location.hash.slice(1)&&items.find(i=>i[0]===location.hash.slice(1)))?location.hash.slice(1):items[0][0]);
+}
+function go(v){CUR=v;location.hash=v;$$("#nav a").forEach(a=>a.classList.toggle("on",a.dataset.go===v));$("#main").innerHTML='<p class="mut">Carregando…</p>';guard(V[v])().then(()=>scrollTo(0,0))}
+const reload=()=>go(CUR);
+const head=(t,sub,extra="")=>`<div class="head"><div><h1>${t}</h1><p>${sub||""}</p></div><div class="row">${extra}</div></div>`;
+const tipoNome=id=>TIPOS.find(t=>t.id===id)?.nome||id;
+const ORIG={site:"Site",balcao:"Balcão",telefone:"Telefone",whatsapp:"WhatsApp",booking:"Booking.com"};
+
+const V={};
+/* ================= painel ================= */
+V.dashboard=async()=>{
+  const d=await api("GET","/dashboard");
+  const res=can("reservas")?await api("GET","/reservas"):[];const H=hoje();
+  const ch=res.filter(r=>["pendente","confirmada"].includes(r.status)&&r.checkin<=H&&r.checkout>H),sa=res.filter(r=>r.status==="hospedado"&&r.checkout<=H);
+  const max=Math.max(d.totalQuartos,...d.ocupacao14.map(x=>x.ocupados));
+  const pend=res.filter(r=>r.status==="pendente");
+  $("#main").innerHTML=head("Painel",new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"America/Fortaleza"}))+
+  (d.conflitosIcal?`<div class="alert"><b>⚠ ${d.conflitosIcal} conflito(s) de calendário</b> — há bloqueio vindo da Booking sobre reserva direta. Veja em <a href="#integracoes" onclick="go('integracoes')">Booking / iCal</a> e <a href="#quartos" onclick="go('quartos')">Quartos</a> (mapa).</div>`:"")+
+  `<div class="grid g4" style="margin-bottom:18px">
+   <div class="kpi"><span>Ocupação hoje</span><b>${Math.round(d.ocupados/d.totalQuartos*100)}%</b><small>${d.ocupados} de ${d.totalQuartos} quartos · ${d.livres} livres${d.foraServico?` · ${d.foraServico} fora de serviço`:""}</small></div>
+   <div class="kpi"><span>Chegadas / Saídas hoje</span><b>${d.chegadas} / ${d.saidas}</b><small>check-ins e check-outs previstos</small></div>
+   ${can("pagamentos")?`<div class="kpi"><span>Recebido no mês</span><b>${brl(d.receitaMes)}</b><small>a receber: ${brl(d.aReceber)}</small></div>`:`<div class="kpi"><span>Limpezas pendentes</span><b>${d.limpezaPendente}</b></div>`}
+   <div class="kpi ${d.pendentes?"warn":""}"><span>Reservas aguardando confirmação</span><b>${d.pendentes}</b><small>${d.passeiosPend} solicitação(ões) de passeio</small></div>
+   </div>
+   <div class="grid g2"><div class="card"><h2>Ocupação — próximos 14 dias</h2><div class="bars">${d.ocupacao14.map(x=>`<div title="${fmt(x.data)}: ${x.ocupados} quartos"><i style="height:${Math.round(x.ocupados/max*100)}px"></i>${x.data.slice(8)}</div>`).join("")}</div></div>
+   <div class="card"><h2>Atenção</h2>
+     ${d.limpezaPendente?`<p>🧹 <b>${d.limpezaPendente}</b> tarefa(s) de limpeza em aberto</p>`:""}
+     ${d.estoqueBaixo?`<p>📦 <b>${d.estoqueBaixo}</b> item(ns) de estoque abaixo do mínimo</p>`:""}
+     ${d.pendentes?`<p>📖 <b>${d.pendentes}</b> reserva(s) pendente(s)</p>`:""}
+     ${!d.limpezaPendente&&!d.estoqueBaixo&&!d.pendentes?`<p class="mut">Tudo em dia ✓</p>`:""}</div></div>
+   ${can("reservas")?`<div class="grid g2"><div class="card"><h2>Chegadas de hoje (${ch.length})</h2>${ch.length?ch.map(r=>`<div class="row sp" style="padding:6px 0;border-bottom:1px solid #f0ebdd"><span><b>${esc(r.nome)}</b> · ${tipoNome(r.tipo).split(" ·")[0]} · q.${r.quarto}</span>${pill(r.status)}</div>`).join(""):'<p class="mut">Nenhuma.</p>'}</div>
+   <div class="card"><h2>Saídas de hoje (${sa.length})</h2>${sa.length?sa.map(r=>`<div class="row sp" style="padding:6px 0;border-bottom:1px solid #f0ebdd"><span><b>${esc(r.nome)}</b> · q.${r.quarto}</span><span class="${r.saldo>0?"red":"grn"}">${r.saldo>0?"saldo "+brl(r.saldo):"quitado"}</span></div>`).join(""):'<p class="mut">Nenhuma.</p>'}</div></div>`:""}`;
+  badges(d,pend.length);
+};
+function badges(d,pend){const set=(id,n)=>{const e=$("#b-"+id);if(e){e.textContent=n;e.classList.toggle("hidden",!n)}};set("reservas",pend);set("limpeza",d.limpezaPendente);set("estoque",d.estoqueBaixo);set("integracoes",d.conflitosIcal)}
+
+/* ================= reservas ================= */
+let RF={q:"",status:""};
+V.reservas=async()=>{
+  const p=new URLSearchParams();if(RF.q)p.set("q",RF.q);if(RF.status)p.set("status",RF.status);
+  const rows=await api("GET","/reservas?"+p);
+  $("#main").innerHTML=head("Reservas","Todas as origens: site, balcão, telefone, WhatsApp e Booking.com",can("reservas","w")?`<button class="btn p" data-a="newRes">+ Nova reserva</button>`:"")+
+  `<div class="card"><div class="tools"><input id="rq" placeholder="Buscar nome, código ou telefone" value="${esc(RF.q)}"><select id="rs"><option value="">Todos os status</option>${["pendente","confirmada","hospedado","finalizada","cancelada"].map(s=>`<option ${RF.status===s?"selected":""}>${s}</option>`).join("")}</select></div>
+  <div class="tw"><table><thead><tr><th>Código</th><th>Hóspede</th><th>Período</th><th>Quarto</th><th>Origem</th><th>Total</th><th>Saldo</th><th>Status</th></tr></thead><tbody>
+  ${rows.map(r=>`<tr class="click" data-a="resDet" data-id="${r.id}"><td><b>${r.code}</b></td><td>${esc(r.nome)}</td><td>${fmt(r.checkin)} → ${fmt(r.checkout)} <span class="mut">(${r.noites}n)</span></td><td>${r.quarto} <span class="mut">${esc(tipoNome(r.tipo).split(" ·")[0])}</span></td><td>${ORIG[r.origem]||r.origem}</td><td>${brl(r.total)}</td><td class="${r.saldo>0?"red":"grn"}">${r.saldo>0?brl(r.saldo):"quitado"}</td><td>${pill(r.status)}</td></tr>`).join("")||`<tr><td colspan="8" class="mut">Nenhuma reserva encontrada.</td></tr>`}
+  </tbody></table></div></div>`;
+  let t;$("#rq").oninput=e=>{clearTimeout(t);t=setTimeout(()=>{RF.q=e.target.value;V.reservas()},300)};
+  $("#rs").onchange=e=>{RF.status=e.target.value;V.reservas()};
+};
+const resForm=r=>`<div class="f">
+ <div class="full"><label>Nome do hóspede</label><input id="rn" value="${esc(r.nome||"")}"></div>
+ <div><label>WhatsApp (com DDD)</label><input id="rt" value="${esc(r.tel||"")}"></div><div><label>E-mail</label><input id="rm" value="${esc(r.mail||"")}"></div>
+ <div><label>Check-in</label><input type="date" id="ri" value="${r.checkin||hoje()}"></div><div><label>Check-out</label><input type="date" id="ro" value="${r.checkout||addD(hoje(),2)}"></div>
+ <div><label>Acomodação</label><select id="rtp">${TIPOS.map(t=>`<option value="${t.id}" ${t.id===r.tipo?"selected":""}>${esc(t.nome)} — ${brl(t.tarifa)}</option>`).join("")}</select></div>
+ <div><label>Quarto (vazio = automático)</label><input id="rq2" value="${esc(r.quarto||"")}" placeholder="ex.: 05"></div>
+ <div><label>Adultos</label><input type="number" id="ra" min="1" value="${r.ad||2}"></div><div><label>Crianças</label><input type="number" id="rc" min="0" value="${r.ch||0}"></div>
+ ${r.id?`<div><label>Total da estadia (R$)</label><input type="number" id="rtot" step="0.01" value="${r.total}"></div>`:`<div><label>Origem</label><select id="ror">${["balcao","telefone","whatsapp","booking"].map(o=>`<option value="${o}">${ORIG[o]}</option>`).join("")}</select></div>`}
+ <div class="${r.id?"":"full"}"><label>Observações</label><input id="rob" value="${esc(r.obs||"")}"></div></div>`;
+const resData=()=>({nome:$("#rn").value,tel:$("#rt").value,mail:$("#rm").value,checkin:$("#ri").value,checkout:$("#ro").value,tipo:$("#rtp").value,quarto:$("#rq2").value,ad:+$("#ra").value,ch:+$("#rc").value,obs:$("#rob").value});
+A.newRes=()=>modal(`<h2>Nova reserva</h2>${resForm({})}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveNewRes">Criar reserva</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.saveNewRes=async()=>{const b=resData();b.origem=$("#ror").value;const r=await api("POST","/reservas",b);closeModal();toast("Reserva "+r.code+" criada (quarto "+r.quarto+")");reload()};
+A.resDet=async({id})=>{
+  const r=await api("GET","/reservas/"+id);
+  const w=can("reservas","w"),pg=can("pagamentos","w");
+  modal(`<div class="row sp"><div><h2 style="margin:0">${r.code} · ${esc(r.nome)}</h2><span class="mut">${ORIG[r.origem]} · criada em ${fmtY(r.criado)}</span></div>${pill(r.status)}</div>
+  <div class="grid g2" style="margin:14px 0"><div><span class="mut">Período</span><br><b>${fmtY(r.checkin)} → ${fmtY(r.checkout)}</b> (${r.noites} noites)</div><div><span class="mut">Acomodação</span><br><b>${esc(tipoNome(r.tipo))} · quarto ${r.quarto}</b></div>
+  <div><span class="mut">Hóspedes</span><br>${r.ad} adulto(s), ${r.ch} criança(s)</div><div><span class="mut">Contato</span><br>${esc(r.tel)} ${r.mail?"· "+esc(r.mail):""}</div></div>
+  ${r.obs?`<p style="margin-bottom:12px"><span class="mut">Obs.:</span> ${esc(r.obs)}</p>`:""}
+  <div class="grid g3" style="margin-bottom:12px"><div class="kpi"><span>Total</span><b style="font-size:20px">${brl(r.total)}</b></div><div class="kpi"><span>Pago</span><b style="font-size:20px">${brl(r.pago)}</b></div><div class="kpi ${r.saldo>0?"warn":""}"><span>Saldo</span><b style="font-size:20px">${brl(r.saldo)}</b></div></div>
+  <h3>Pagamentos</h3><table>${r.pagamentos.map(p=>`<tr><td>${hm(p.criado)}</td><td>${p.metodo}</td><td>${brl(p.valor)}</td><td>${pill(p.status)}</td><td class="mut">${esc(p.ref||"")}</td></tr>`).join("")||'<tr><td class="mut">Nenhum pagamento.</td></tr>'}</table>
+  ${pg&&!["cancelada","finalizada"].includes(r.status)?`<div class="row" style="margin:10px 0"><select id="pm" style="width:auto"><option>pix</option><option>cartao</option><option>dinheiro</option><option>booking</option><option>outro</option></select><input id="pv" type="number" step="0.01" style="width:130px" value="${r.saldo||""}" placeholder="Valor"><button class="btn" data-a="addPay" data-id="${r.id}">Registrar pagamento</button></div>`:""}
+  ${r.passeios.length?`<h3 style="margin-top:12px">Passeios</h3>${r.passeios.map(p=>`<div>${esc(p.passeio)} · ${fmt(p.data)} · ${p.pessoas} pessoa(s) · ${brl(p.valor)} ${pill(p.status)}</div>`).join("")}`:""}
+  <div class="row" style="margin-top:18px">
+   ${w&&r.status==="pendente"?`<button class="btn p" data-a="setSt" data-id="${r.id}" data-s="confirmada">Confirmar</button>`:""}
+   ${w&&["pendente","confirmada"].includes(r.status)?`<button class="btn d" data-a="setSt" data-id="${r.id}" data-s="cancelada">Cancelar reserva</button>`:""}
+   ${w&&r.status==="cancelada"?`<button class="btn" data-a="setSt" data-id="${r.id}" data-s="pendente">Reativar</button>`:""}
+   ${w&&r.status!=="finalizada"?`<button class="btn" data-a="editRes" data-id="${r.id}">Editar</button>`:""}
+   <a class="btn" target="_blank" rel="noopener" href="https://wa.me/${r.tel.length<=11?"55"+r.tel:r.tel}">WhatsApp</a><button class="btn" onclick="closeModal()">Fechar</button></div>`);
+};
+A.addPay=async({id})=>{await api("POST",`/reservas/${id}/pagamentos`,{metodo:$("#pm").value,valor:+$("#pv").value});toast("Pagamento registrado");A.resDet({id});if(CUR!=="dashboard")V[CUR]()};
+A.setSt=async({id,s})=>{await api("POST",`/reservas/${id}/status`,{status:s});closeModal();toast("Status atualizado");reload()};
+A.editRes=async({id})=>{const r=await api("GET","/reservas/"+id);modal(`<h2>Editar ${r.code}</h2>${resForm(r)}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveRes" data-id="${id}">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)};
+A.saveRes=async({id})=>{const b=resData();b.total=+$("#rtot").value;await api("PUT","/reservas/"+id,b);closeModal();toast("Reserva atualizada");reload()};
+
+/* ================= check-in / check-out ================= */
+V.checkin=async()=>{
+  const all=await api("GET","/reservas");const H=hoje();
+  const arr=all.filter(r=>["pendente","confirmada"].includes(r.status)&&r.checkin<=H&&r.checkout>H);
+  const prox=all.filter(r=>["pendente","confirmada"].includes(r.status)&&r.checkin>H&&r.checkin<=addD(H,3)).sort((a,b)=>a.checkin.localeCompare(b.checkin));
+  const inh=all.filter(r=>r.status==="hospedado").sort((a,b)=>a.checkout.localeCompare(b.checkout));
+  const qs=Object.fromEntries((await api("GET","/quartos")).map(q=>[q.num,q]));
+  const card=(r,bt)=>`<div class="task"><div class="row sp"><div><b>${esc(r.nome)}</b> <span class="mut">${r.code}</span><br><span class="mut">${r.ad+r.ch} pessoa(s) · ${esc(tipoNome(r.tipo).split(" ·")[0])} · ${fmt(r.checkin)}→${fmt(r.checkout)}</span>${r.obs?`<br><i class="mut">“${esc(r.obs)}”</i>`:""}</div><div style="text-align:right"><div>Quarto <b>${r.quarto}</b> ${qs[r.quarto]?pill(qs[r.quarto].estado):""}</div><div class="${r.saldo>0?"red":"grn"}">${r.saldo>0?"saldo "+brl(r.saldo):"quitado"}</div></div></div>${bt?`<div class="row" style="margin-top:8px">${bt}</div>`:""}</div>`;
+  $("#main").innerHTML=head("Check-in / Check-out","Recepção do dia · check-in a partir das 14h, check-out até 12h")+
+  `<div class="kan" style="grid-template-columns:1fr 1fr"><div><h3>Chegadas de hoje (${arr.length})</h3>${arr.map(r=>card(r,`<button class="btn p s" data-a="doIn" data-id="${r.id}">Fazer check-in</button><button class="btn s" data-a="resDet" data-id="${r.id}">Detalhes / pagamento</button>`)).join("")||'<p class="mut">Nenhuma chegada pendente.</p>'}
+   ${prox.length?`<h3 style="margin:14px 0 8px">Próximas chegadas (3 dias)</h3>${prox.map(r=>card(r,"")).join("")}`:""}</div>
+   <div><h3>Hospedados (${inh.length})</h3>${inh.map(r=>card(r,`<button class="btn p s" data-a="doOut" data-id="${r.id}">Fazer check-out</button><button class="btn s" data-a="resDet" data-id="${r.id}">Detalhes / pagamento</button>${r.checkout<=H?`<span class="pill s-sujo">saída hoje</span>`:""}`)).join("")||'<p class="mut">Ninguém hospedado.</p>'}</div></div>`;
+};
+A.doIn=async({id})=>{try{await api("POST",`/reservas/${id}/checkin`,{})}catch(e){if(e.status===409&&confirm(e.message+"\n\nFazer o check-in mesmo assim?"))await api("POST",`/reservas/${id}/checkin`,{forcar:true});else throw e}toast("Check-in realizado ✓");reload()};
+A.doOut=async({id})=>{try{await api("POST",`/reservas/${id}/checkout`,{})}catch(e){if(e.status===409&&confirm(e.message+"\n\nFazer o check-out mesmo assim?"))await api("POST",`/reservas/${id}/checkout`,{forcar:true});else throw e}toast("Check-out feito — quarto enviado para limpeza 🧹");reload()};
+
+/* ================= quartos ================= */
+const EST={livre:"Livre",ocupado:"Ocupado",sujo:"Sujo",limpando:"Em limpeza",manutencao:"Manutenção",bloqueado:"Bloqueado (Booking)"};
+V.quartos=async()=>{
+  const [qs,m]=await Promise.all([api("GET","/quartos"),api("GET","/mapa")]);
+  const cnt=k=>qs.filter(q=>q.estado===k).length;
+  const days=[...Array(m.dias)].map((_,i)=>addD(m.from,i)),H=hoje();
+  const cell=(q,d)=>{const it=q.itens.find(i=>i.checkin<=d&&d<i.checkout);if(!it)return`<div class="c ${d===H?"hoje":""}"></div>`;
+    const cls=it.tipo==="bloqueio"?"r-bloqueio":it.origem==="booking"?"r-booking":"r-"+it.status;const first=it.checkin===d||d===days[0];
+    return`<div class="c ${cls} ${d===H?"hoje":""}" title="${esc(it.rotulo)} ${fmt(it.checkin)}→${fmt(it.checkout)}" ${it.id?`data-a="resDet" data-id="${it.id}" style="cursor:pointer"`:""}>${first?esc(it.rotulo.split(" ")[0]):""}</div>`};
+  $("#main").innerHTML=head("Quartos","Ocupação, status e mapa de reservas")+
+  `<div class="grid g5" style="margin-bottom:16px">${Object.keys(EST).map(k=>`<div class="kpi"><span>${EST[k]}</span><b>${cnt(k)}</b></div>`).join("")}</div>
+  <div class="card"><div class="rooms">${qs.map(q=>`<div class="room ${q.estado}" data-a="roomEdit" data-n="${q.num}"><div class="row sp"><h3>${q.num}</h3>${pill(q.estado,EST[q.estado].split(" (")[0])}</div><small>${esc(q.tipoNome.split(" ·")[0])}</small>
+   ${q.atual?`<small><b>${esc(q.atual.nome.split(" ")[0])}</b> · sai ${fmt(q.atual.checkout)}</small>`:q.prox?`<small>Próx.: ${esc(q.prox.nome.split(" ")[0])} · ${fmt(q.prox.checkin)}</small>`:'<small>&nbsp;</small>'}${q.obs?`<small class="red">${esc(q.obs)}</small>`:""}</div>`).join("")}</div></div>
+  <div class="card"><div class="row sp"><h2>Mapa de ocupação — 14 dias</h2><div class="legend"><span><i style="background:#f6df97"></i>Pendente</span><span><i style="background:#a9dc9a"></i>Confirmada</span><span><i style="background:#78d0c8"></i>Hospedado</span><span><i style="background:#9db8e8"></i>Booking (reserva)</span><span><i style="background:#888"></i>Bloqueio Booking/iCal</span></div></div>
+   <div class="tw"><div class="map" style="grid-template-columns:44px repeat(${m.dias},1fr)"><div class="h"></div>${days.map(d=>`<div class="h">${d.slice(8)}<br>${new Date(d+"T12:00").toLocaleDateString("pt-BR",{weekday:"narrow"})}</div>`).join("")}
+   ${m.quartos.map(q=>`<div class="rn">${q.num}</div>${days.map(d=>cell(q,d)).join("")}`).join("")}</div></div></div>`;
+};
+A.roomEdit=({n})=>{
+  if(!can("quartos","w"))return toast("Seu perfil só visualiza os quartos.");
+  api("GET","/quartos").then(qs=>{const q=qs.find(x=>x.num===n);modal(`<h2>Quarto ${n} <span class="mut" style="font-size:13px">${esc(q.tipoNome)}</span></h2><div class="f"><div><label>Status de limpeza / manutenção</label><select id="qst">${["limpo","sujo","limpando","manutencao"].map(s=>`<option value="${s}" ${q.status===s?"selected":""}>${{limpo:"Limpo / pronto",sujo:"Sujo",limpando:"Em limpeza",manutencao:"Em manutenção (fora de venda)"}[s]}</option>`).join("")}</select></div><div><label>Observação</label><input id="qob" value="${esc(q.obs)}" placeholder="ex.: trocar lâmpada"></div></div>
+   ${q.atual?`<p style="margin-top:10px">Hóspede atual: <b>${esc(q.atual.nome)}</b> (${q.atual.code})</p>`:""}<div class="row" style="margin-top:16px"><button class="btn p" data-a="roomSave" data-n="${n}">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)});
+};
+A.roomSave=async({n})=>{await api("PUT","/quartos/"+n,{status:$("#qst").value,obs:$("#qob").value});closeModal();toast("Quarto atualizado");reload()};
+
+/* ================= limpeza ================= */
+const TL={saida:"Limpeza de saída",arrumacao:"Arrumação diária",profunda:"Limpeza profunda"};
+V.limpeza=async()=>{
+  const [ts,eq]=await Promise.all([api("GET","/limpeza"),can("limpeza","w")?api("GET","/equipe-limpeza"):[]]);
+  const w=can("limpeza","w"),own=ME.perms.limpeza==="own",act=can("limpeza")&&ME.perms.limpeza!=="r";
+  const col=(st,t)=>`<div><h3>${t} (${ts.filter(x=>x.status===st).length})</h3>${ts.filter(x=>x.status===st).map(x=>`<div class="task"><div class="row sp"><b>Quarto ${x.quarto}</b>${pill(x.tipo==="saida"?"sujo":"limpando",TL[x.tipo])}</div>
+    <div class="mut">${x.atribuidoNome?"👤 "+esc(x.atribuidoNome):"sem responsável"}${x.concluido?" · concluído "+hm(x.concluido):""}</div>${x.notas?`<div>${esc(x.notas)}</div>`:""}
+    ${w&&st!=="pronto"?`<select data-a-change="assign" data-id="${x.id}" style="margin-top:6px"><option value="">— atribuir a —</option>${eq.map(e=>`<option value="${e.id}" ${x.atribuido===e.id?"selected":""}>${esc(e.nome)}</option>`).join("")}</select>`:""}
+    ${act&&st==="pendente"?`<button class="btn p s" style="margin-top:8px" data-a="tk" data-id="${x.id}" data-s="em_andamento">▶ Iniciar</button>`:""}${act&&st==="em_andamento"?`<button class="btn p s" style="margin-top:8px" data-a="tk" data-id="${x.id}" data-s="pronto">✓ Concluir</button>`:""}</div>`).join("")||'<p class="mut">—</p>'}</div>`;
+  $("#main").innerHTML=head("Limpeza","Governança dos quartos"+(own?" · suas tarefas e as livres":""),w?`<button class="btn p" data-a="newTask">+ Nova tarefa</button>`:"")+
+  `<div class="kan">${col("pendente","A fazer")}${col("em_andamento","Em andamento")}${col("pronto","Concluídas hoje")}</div>
+  <p class="mut" style="margin-top:14px">Ao concluir uma limpeza de saída, o quarto fica automaticamente <b>limpo/livre</b> e liberado para o próximo check-in. O check-out gera a tarefa sozinho.</p>`;
+  $$("[data-a-change=assign]").forEach(s=>s.onchange=guard(async()=>{await api("PATCH","/limpeza/"+s.dataset.id,{atribuido:s.value?+s.value:null});toast("Responsável atualizado")}));
+};
+A.tk=async({id,s})=>{await api("PATCH","/limpeza/"+id,{status:s});toast(s==="pronto"?"Quarto liberado ✓":"Limpeza iniciada");reload()};
+A.newTask=async()=>{const qs=await api("GET","/quartos"),eq=await api("GET","/equipe-limpeza");modal(`<h2>Nova tarefa de limpeza</h2><div class="f"><div><label>Quarto</label><select id="tq">${qs.map(q=>`<option>${q.num}</option>`).join("")}</select></div><div><label>Tipo</label><select id="tt">${Object.entries(TL).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></div><div><label>Atribuir a</label><select id="ta"><option value="">—</option>${eq.map(e=>`<option value="${e.id}">${esc(e.nome)}</option>`).join("")}</select></div><div><label>Notas</label><input id="tn"></div></div><div class="row" style="margin-top:16px"><button class="btn p" data-a="saveTask">Criar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)};
+A.saveTask=async()=>{await api("POST","/limpeza",{quarto:$("#tq").value,tipo:$("#tt").value,atribuido:$("#ta").value?+$("#ta").value:null,notas:$("#tn").value});closeModal();reload()};
+
+/* ================= passeios ================= */
+V.passeios=async()=>{
+  const [ps,rs]=await Promise.all([api("GET","/passeios"),api("GET","/passeios/reservas")]);const w=can("passeios","w");
+  $("#main").innerHTML=head("Passeios","Catálogo vendido aos hóspedes (aparece no site) e agenda de passeios",w?`<button class="btn" data-a="newTour">+ Novo passeio</button><button class="btn p" data-a="newTB">+ Agendar passeio</button>`:"")+
+  `<div class="alert">ℹ️ O Instagram da pousada não pôde ser lido automaticamente (exige login). Os passeios abaixo marcados como <b>sugestão</b> são os roteiros típicos do Cumbuco — confirme nomes, valores e parceiros com o cliente e edite aqui.</div>
+  <div class="grid g3" style="margin-bottom:18px">${ps.map(p=>`<div class="card" style="margin:0;padding:0;overflow:hidden;${p.ativo?"":"opacity:.55"}"><img src="/${esc(p.img)}" alt="" style="width:100%;height:120px;object-fit:cover"><div style="padding:12px 14px"><h3>${esc(p.nome)}</h3><p class="mut">${esc(p.descricao)}</p><div class="row sp" style="margin-top:8px"><b>${brl(p.preco)}<span class="mut"> /pessoa · ${esc(p.duracao)}</span></b>${w?`<button class="btn s" data-a="editTour" data-id="${p.id}">Editar</button>`:""}</div>${p.fonte?`<span class="pill s-pendente" style="margin-top:6px">${esc(p.fonte)}</span>`:""}${p.ativo?"":'<span class="pill s-cancelada">inativo</span>'}</div></div>`).join("")}</div>
+  <div class="card"><h2>Agenda de passeios</h2><div class="tw"><table><thead><tr><th>Data</th><th>Passeio</th><th>Hóspede</th><th>Pessoas</th><th>Valor</th><th>Status</th></tr></thead><tbody>${rs.map(r=>`<tr><td>${fmtY(r.data)}</td><td>${esc(r.passeio)}</td><td>${esc(r.nome)} <span class="mut">${r.code||""}</span></td><td>${r.pessoas}</td><td>${brl(r.valor)}</td><td>${w?`<select data-a-change="tbs" data-id="${r.id}" style="width:auto">${["solicitado","confirmado","realizado","cancelado"].map(s=>`<option ${r.status===s?"selected":""}>${s}</option>`).join("")}</select>`:pill(r.status)}</td></tr>`).join("")||'<tr><td colspan="6" class="mut">Nenhum passeio agendado.</td></tr>'}</tbody></table></div></div>`;
+  $$("[data-a-change=tbs]").forEach(s=>s.onchange=guard(async()=>{await api("PUT","/passeios/reservas/"+s.dataset.id,{status:s.value});toast("Atualizado")}));
+  window._tours=ps;
+};
+const tourForm=p=>`<div class="f"><div class="full"><label>Nome</label><input id="pn" value="${esc(p.nome||"")}"></div><div class="full"><label>Descrição</label><textarea id="pd" rows="2">${esc(p.descricao||"")}</textarea></div><div><label>Preço por pessoa (R$)</label><input id="pp" type="number" step="0.01" value="${p.preco||""}"></div><div><label>Duração</label><input id="pt" value="${esc(p.duracao||"")}"></div><div><label>Imagem (caminho em /media)</label><input id="pi" value="${esc(p.img||"media/d2.jpg")}"></div><div><label>Visível no site</label><select id="pa"><option value="1">Sim</option><option value="0" ${p.ativo===0?"selected":""}>Não</option></select></div></div>`;
+const tourData=()=>({nome:$("#pn").value,descricao:$("#pd").value,preco:+$("#pp").value,duracao:$("#pt").value,img:$("#pi").value,ativo:+$("#pa").value});
+A.newTour=()=>modal(`<h2>Novo passeio</h2>${tourForm({})}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveTour">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.editTour=({id})=>modal(`<h2>Editar passeio</h2>${tourForm(window._tours.find(p=>p.id==id))}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveTour" data-id="${id}">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.saveTour=async({id})=>{await api(id?"PUT":"POST","/passeios"+(id?"/"+id:""),tourData());closeModal();reload()};
+A.newTB=()=>modal(`<h2>Agendar passeio</h2><div class="f"><div class="full"><label>Passeio</label><select id="bp">${window._tours.filter(p=>p.ativo).map(p=>`<option value="${p.id}">${esc(p.nome)} — ${brl(p.preco)}</option>`).join("")}</select></div><div><label>Data</label><input type="date" id="bd" value="${hoje()}"></div><div><label>Pessoas</label><input type="number" id="bn" min="1" value="2"></div><div><label>Código da reserva (opcional)</label><input id="bc" placeholder="BC-0000"></div><div><label>Nome (se não houver reserva)</label><input id="bnm"></div><div class="full"><label>Telefone</label><input id="btl"></div></div><div class="row" style="margin-top:16px"><button class="btn p" data-a="saveTB">Agendar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.saveTB=async()=>{await api("POST","/passeios/reservas",{passeio_id:+$("#bp").value,data:$("#bd").value,pessoas:+$("#bn").value,code:$("#bc").value,nome:$("#bnm").value,tel:$("#btl").value});closeModal();reload()};
+
+/* ================= estoque ================= */
+let EF={q:"",low:false};
+V.estoque=async()=>{
+  let it=await api("GET","/estoque");const w=can("estoque","w");const baixos=it.filter(i=>i.qtd<=i.minimo);
+  if(EF.low)it=baixos;if(EF.q)it=it.filter(i=>(i.nome+i.categoria).toLowerCase().includes(EF.q.toLowerCase()));
+  window._est=it;
+  $("#main").innerHTML=head("Estoque","Materiais da pousada: enxoval, higiene, frigobar, café, piscina, limpeza e manutenção",w?`<button class="btn p" data-a="newItem">+ Novo item</button>`:"")+
+  (baixos.length?`<div class="alert"><b>⚠ ${baixos.length} item(ns) no mínimo ou abaixo:</b> ${baixos.map(i=>esc(i.nome)).join(", ")}.</div>`:"")+
+  `<div class="card"><div class="tools"><input id="eq" placeholder="Buscar item ou categoria" value="${esc(EF.q)}"><label style="display:flex;gap:6px;align-items:center;margin:0"><input type="checkbox" id="el" style="width:auto" ${EF.low?"checked":""}> só em falta</label></div>
+  <div class="tw"><table><thead><tr><th>Item</th><th>Categoria</th><th>Saldo</th><th>Mínimo</th><th>Custo un.</th><th>Valor em estoque</th><th></th></tr></thead><tbody>${it.map(i=>`<tr class="${i.qtd<=i.minimo?"low":""}"><td><b>${esc(i.nome)}</b></td><td>${esc(i.categoria)}</td><td><b class="${i.qtd<=i.minimo?"red":""}">${i.qtd} ${esc(i.unidade)}</b></td><td>${i.minimo}</td><td>${brl(i.custo)}</td><td>${brl(i.qtd*i.custo)}</td><td class="row" style="flex-wrap:nowrap">${w?`<button class="btn s" data-a="mov" data-id="${i.id}" data-d="1">+ Entrada</button><button class="btn s" data-a="mov" data-id="${i.id}" data-d="-1">− Saída</button><button class="btn s" data-a="editItem" data-id="${i.id}">Editar</button>`:""}<button class="btn s" data-a="hist" data-id="${i.id}">Histórico</button></td></tr>`).join("")||'<tr><td colspan="7" class="mut">Nada encontrado.</td></tr>'}</tbody></table></div></div>`;
+  let t;$("#eq").oninput=e=>{clearTimeout(t);t=setTimeout(()=>{EF.q=e.target.value;V.estoque()},300)};$("#el").onchange=e=>{EF.low=e.target.checked;V.estoque()};
+};
+const itemForm=i=>`<div class="f"><div class="full"><label>Nome</label><input id="in" value="${esc(i.nome||"")}"></div><div><label>Categoria</label><input id="ic" list="cats" value="${esc(i.categoria||"")}"><datalist id="cats"><option>Enxoval</option><option>Higiene</option><option>Frigobar</option><option>Café da manhã</option><option>Piscina</option><option>Limpeza</option><option>Manutenção</option></datalist></div><div><label>Unidade</label><input id="iu" value="${esc(i.unidade||"un")}"></div><div><label>Estoque mínimo</label><input id="im" type="number" step="any" value="${i.minimo??0}"></div><div><label>Custo unitário (R$)</label><input id="ico" type="number" step="0.01" value="${i.custo??0}"></div>${i.id?"":`<div class="full"><label>Quantidade inicial</label><input id="iq" type="number" step="any" value="0"></div>`}</div>`;
+const itemData=()=>({nome:$("#in").value,categoria:$("#ic").value,unidade:$("#iu").value,minimo:+$("#im").value,custo:+$("#ico").value,qtd:$("#iq")?+$("#iq").value:0});
+A.newItem=()=>modal(`<h2>Novo item</h2>${itemForm({})}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveItem">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.editItem=({id})=>modal(`<h2>Editar item</h2>${itemForm(window._est.find(i=>i.id==id))}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveItem" data-id="${id}">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.saveItem=async({id})=>{await api(id?"PUT":"POST","/estoque"+(id?"/"+id:""),itemData());closeModal();reload()};
+A.mov=({id,d})=>{const i=window._est.find(x=>x.id==id);modal(`<h2>${d>0?"Entrada":"Saída"} — ${esc(i.nome)}</h2><p class="mut">Saldo atual: ${i.qtd} ${esc(i.unidade)}</p><div class="f"><div><label>Quantidade</label><input id="mq" type="number" step="any" min="0" autofocus></div><div><label>Motivo</label><input id="mm" placeholder="${d>0?"Compra / NF":"Uso quartos, quebra…"}"></div></div><div class="row" style="margin-top:16px"><button class="btn p" data-a="saveMov" data-id="${id}" data-d="${d}">Confirmar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`)};
+A.saveMov=async({id,d})=>{await api("POST",`/estoque/${id}/mov`,{delta:Math.abs(+$("#mq").value)*(+d),motivo:$("#mm").value});closeModal();toast("Movimentação registrada");reload()};
+A.hist=async({id})=>{const h=await api("GET",`/estoque/${id}/mov`);modal(`<h2>Histórico</h2><table>${h.map(m=>`<tr><td>${hm(m.criado)}</td><td class="${m.delta>0?"grn":"red"}"><b>${m.delta>0?"+":""}${m.delta}</b></td><td>${esc(m.motivo)}</td><td class="mut">${esc(m.usuario||"")}</td></tr>`).join("")||'<tr><td class="mut">Sem movimentações.</td></tr>'}</table><div class="row" style="margin-top:14px"><button class="btn" onclick="closeModal()">Fechar</button></div>`)};
+
+/* ================= pagamentos ================= */
+let PM=hoje().slice(0,7);
+V.pagamentos=async()=>{
+  const ps=await api("GET","/pagamentos?mes="+PM);const w=can("pagamentos","w");
+  const ok=ps.filter(p=>p.status==="pago"),by=m=>ok.filter(p=>p.metodo===m).reduce((s,p)=>s+p.valor,0);
+  $("#main").innerHTML=head("Pagamentos","Recebimentos por forma de pagamento",`<input type="month" id="pmes" value="${PM}" style="width:auto">`)+
+  `<div class="grid g5" style="margin-bottom:16px"><div class="kpi"><span>Recebido no mês</span><b>${brl(ok.reduce((s,p)=>s+p.valor,0))}</b></div>${["pix","cartao","dinheiro","booking"].map(m=>`<div class="kpi"><span>${m}</span><b style="font-size:20px">${brl(by(m))}</b></div>`).join("")}<div class="kpi ${ps.some(p=>p.status==="pendente")?"warn":""}"><span>Pix aguardando</span><b style="font-size:20px">${brl(ps.filter(p=>p.status==="pendente").reduce((s,p)=>s+p.valor,0))}</b></div></div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Data</th><th>Reserva</th><th>Forma</th><th>Valor</th><th>Status</th><th>Ref.</th><th></th></tr></thead><tbody>${ps.map(p=>`<tr><td>${hm(p.criado)}</td><td><a href="#" data-a="resDet" data-id="${p.reserva_id}">${p.code}</a> · ${esc(p.nome)}</td><td>${p.metodo}</td><td>${brl(p.valor)}</td><td>${pill(p.status)}</td><td class="mut">${esc(p.ref||"")}</td><td>${w&&p.status==="pendente"?`<button class="btn s p" data-a="payst" data-id="${p.id}" data-s="pago">Confirmar recebimento</button>`:""}${w&&p.status==="pago"?`<button class="btn s d" data-a="payst" data-id="${p.id}" data-s="estornado">Estornar</button>`:""}</td></tr>`).join("")||'<tr><td colspan="7" class="mut">Sem lançamentos neste mês.</td></tr>'}</tbody></table></div></div>`;
+  $("#pmes").onchange=e=>{PM=e.target.value||PM;V.pagamentos()};
+};
+A.payst=async({id,s})=>{if(s==="estornado"&&!confirm("Estornar este pagamento?"))return;await api("PUT","/pagamentos/"+id,{status:s});reload()};
+
+/* ================= funcionários ================= */
+const MODN={dashboard:"Painel",reservas:"Reservas",checkin:"Check-in/out",quartos:"Quartos",limpeza:"Limpeza",passeios:"Passeios",estoque:"Estoque",pagamentos:"Pagamentos",funcionarios:"Funcionários",integracoes:"Booking/iCal",config:"Config."};
+const LV={w:"✏️ edita",r:"👁 vê",own:"👤 só as suas"};
+V.funcionarios=async()=>{
+  const [us,pf]=await Promise.all([api("GET","/funcionarios"),api("GET","/perfis")]);window._pf=pf;window._us=us;const w=can("funcionarios","w");
+  $("#main").innerHTML=head("Funcionários","Contas de acesso e nível de permissão por função",w?`<button class="btn p" data-a="newUser">+ Novo funcionário</button>`:"")+
+  `<div class="card"><table><thead><tr><th>Nome</th><th>Usuário</th><th>Função</th><th>Situação</th><th></th></tr></thead><tbody>${us.map(u=>`<tr style="${u.ativo?"":"opacity:.5"}"><td><b>${esc(u.nome)}</b></td><td>${esc(u.usuario)}</td><td>${esc(pf.labels[u.role])}</td><td>${u.ativo?pill("livre","ativo"):pill("cancelada","desativado")}</td><td>${w?`<button class="btn s" data-a="editUser" data-id="${u.id}">Editar</button>`:""}</td></tr>`).join("")}</tbody></table></div>
+  <div class="card"><h2>Matriz de permissões</h2><div class="tw"><table><thead><tr><th>Função</th>${Object.keys(MODN).map(m=>`<th>${MODN[m]}</th>`).join("")}</tr></thead><tbody>${Object.keys(pf.perms).map(r=>`<tr><td><b>${esc(pf.labels[r])}</b></td>${Object.keys(MODN).map(m=>`<td style="font-size:12px">${pf.perms[r][m]?LV[pf.perms[r][m]]:'<span class="mut">—</span>'}</td>`).join("")}</tr>`).join("")}</tbody></table></div></div>`;
+};
+const userForm=u=>`<div class="f"><div><label>Nome</label><input id="un" value="${esc(u.nome||"")}"></div><div><label>Usuário (login)</label><input id="uu" value="${esc(u.usuario||"")}" ${u.id?"disabled":""}></div><div><label>Função</label><select id="ur">${Object.keys(window._pf.labels).map(r=>`<option value="${r}" ${u.role===r?"selected":""}>${esc(window._pf.labels[r])}</option>`).join("")}</select></div><div><label>${u.id?"Nova senha (deixe vazio para manter)":"Senha (mín. 8)"}</label><input id="us" type="password" autocomplete="new-password"></div>${u.id?`<div class="full"><label>Situação</label><select id="ua"><option value="1">Ativo</option><option value="0" ${u.ativo?"":"selected"}>Desativado (sem acesso)</option></select></div>`:""}</div>`;
+A.newUser=()=>modal(`<h2>Novo funcionário</h2>${userForm({})}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveUser">Criar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.editUser=({id})=>modal(`<h2>Editar funcionário</h2>${userForm(window._us.find(u=>u.id==id))}<div class="row" style="margin-top:16px"><button class="btn p" data-a="saveUser" data-id="${id}">Salvar</button><button class="btn" onclick="closeModal()">Cancelar</button></div>`);
+A.saveUser=async({id})=>{const b={nome:$("#un").value,usuario:$("#uu").value,role:$("#ur").value,senha:$("#us").value};if(id){b.ativo=$("#ua").value==="1";await api("PUT","/funcionarios/"+id,b)}else await api("POST","/funcionarios",b);closeModal();toast("Salvo");reload()};
+
+/* ================= integrações (Booking / iCal) ================= */
+V.integracoes=async()=>{
+  const d=await api("GET","/ical");const w=can("integracoes","w");
+  $("#main").innerHTML=head("Booking.com · Sincronização iCal","Evita overbooking entre o site/balcão e a Booking",w?`<button class="btn p" data-a="syncAll">↻ Sincronizar agora</button>`:"")+
+  (d.feeds.some(f=>f.conflitos)?`<div class="alert"><b>⚠ Conflito de calendário:</b> a Booking bloqueou datas em quartos que já têm reserva direta. Resolva trocando o quarto/hóspede (veja o mapa em Quartos).</div>`:"")+
+  `<div class="card"><h2>1 · Importar da Booking (Booking → pousada)</h2><p class="mut" style="margin-bottom:10px">Na Extranet da Booking: <b>Tarifas e disponibilidade → Sincronizar calendários → Importar/Exportar</b>, copie o link iCal de cada quarto e cadastre abaixo. Sincroniza sozinho a cada 15 min. As datas ocupadas na Booking passam a bloquear o site e o balcão.</p>
+   <div class="tw"><table><thead><tr><th>Quarto</th><th>Canal</th><th>URL do calendário</th><th>Última sincronização</th><th></th></tr></thead><tbody>${d.feeds.map(f=>`<tr><td><b>${f.quarto}</b></td><td>${esc(f.canal)}</td><td class="mono" style="max-width:260px">${esc(f.url)}</td><td>${f.ultimo_sync?hm(f.ultimo_sync):"—"}<br><span class="${/erro|CONFLITO/.test(f.ultimo_status||"")?"red":"grn"}">${esc(f.ultimo_status||"")}</span></td><td class="row" style="flex-wrap:nowrap">${w?`<button class="btn s" data-a="syncOne" data-id="${f.id}">Sincronizar</button><button class="btn s d" data-a="delFeed" data-id="${f.id}">Remover</button>`:""}</td></tr>`).join("")||'<tr><td colspan="5" class="mut">Nenhum calendário cadastrado.</td></tr>'}</tbody></table></div>
+   ${w?`<div class="row" style="margin-top:12px"><select id="fq" style="width:90px">${d.exportacao.map(e=>`<option>${e.quarto}</option>`).join("")}</select><input id="fc" value="Booking.com" style="width:140px"><input id="fu" placeholder="https://admin.booking.com/hotel/hoteladmin/ical.html?t=..." style="flex:1;min-width:240px"><button class="btn p" data-a="addFeed">Adicionar</button></div>`:""}</div>
+  <div class="card"><h2>2 · Exportar para a Booking (pousada → Booking)</h2><p class="mut" style="margin-bottom:10px">Cole estes links na Booking (<i>Importar calendário</i>). Cada quarto tem o seu link; reservas feitas no site e no balcão passam a bloquear a Booking.</p>
+   <label>Todos os quartos</label><div class="mono" style="margin-bottom:10px">${esc(d.todos)}</div>
+   <details><summary style="cursor:pointer;font-weight:600">Link de cada quarto (${d.exportacao.length})</summary>${d.exportacao.map(e=>`<div style="margin-top:6px"><b>Quarto ${e.quarto}</b><div class="mono">${esc(e.url)}</div></div>`).join("")}</details></div>
+  <div class="card"><h2>Bloqueios importados</h2><div class="tw"><table><thead><tr><th>Quarto</th><th>Período</th><th>Origem</th><th>Descrição</th></tr></thead><tbody>${d.bloqueios.map(b=>`<tr><td>${b.quarto}</td><td>${fmtY(b.checkin)} → ${fmtY(b.checkout)}</td><td>${esc(b.canal)}</td><td class="mut">${esc(b.resumo)}</td></tr>`).join("")||'<tr><td colspan="4" class="mut">Nenhum bloqueio.</td></tr>'}</tbody></table></div>
+   <p class="mut" style="margin-top:10px">⚠ O iCal é uma sincronização periódica (a Booking costuma atualizar a cada 15–60 min), não em tempo real. Para sincronização instantânea o caminho é um <i>Channel Manager</i> homologado ou a API de conectividade da Booking.</p></div>`;
+};
+A.syncAll=async()=>{await api("POST","/ical/sync",{});toast("Sincronizado");reload()};
+A.syncOne=async({id})=>{const r=await api("POST",`/ical/feeds/${id}/sync`,{});toast(r.status,/erro/.test(r.status));reload()};
+A.delFeed=async({id})=>{if(!confirm("Remover este calendário e seus bloqueios?"))return;await api("DELETE","/ical/feeds/"+id);reload()};
+A.addFeed=async()=>{await api("POST","/ical/feeds",{quarto:$("#fq").value,canal:$("#fc").value,url:$("#fu").value});toast("Calendário adicionado");reload()};
+
+/* ================= configurações ================= */
+V.config=async()=>{
+  const c=await api("GET","/config");
+  $("#main").innerHTML=head("Configurações","Tarifas, pagamentos e dados da pousada")+
+  `<div class="card"><h2>Tarifas por diária</h2><div class="grid g4">${c.tipos.map(t=>`<div><label>${esc(t.nome)}</label><input type="number" step="0.01" data-tarifa="${t.id}" value="${t.tarifa}"></div>`).join("")}</div></div>
+  <div class="card"><h2>Pagamento online</h2><div class="f"><div><label>Chave Pix da pousada</label><input id="cx" value="${esc(c.pix_chave)}"></div><div><label>Nome do recebedor (Pix)</label><input id="cn" value="${esc(c.pix_nome)}"></div><div><label>Sinal para confirmar (%)</label><input id="cs" type="number" min="0" max="100" value="${esc(c.sinal_pct)}"></div><div><label>Modo do gateway de cartão</label><select id="cg"><option value="demo" ${c.gateway==="demo"?"selected":""}>Demonstração (simulado)</option><option value="producao" ${c.gateway!=="demo"?"selected":""}>Produção (requer integração)</option></select></div></div>
+   <p class="mut" style="margin-top:8px">O Pix gera um código “copia e cola” (BR Code) válido. A confirmação automática do Pix e a cobrança real no cartão dependem de um provedor (Mercado Pago, Stripe, Pagar.me…) — veja o README.</p></div>
+  <div class="card"><h2>Dados</h2><div class="f"><div><label>Nome</label><input id="cp" value="${esc(c.pousada)}"></div><div><label>Cidade</label><input id="cc" value="${esc(c.cidade)}"></div></div></div>
+  <button class="btn p" data-a="saveCfg">Salvar configurações</button>`;
+};
+A.saveCfg=async()=>{await api("PUT","/config",{pix_chave:$("#cx").value,pix_nome:$("#cn").value,sinal_pct:$("#cs").value,gateway:$("#cg").value,pousada:$("#cp").value,cidade:$("#cc").value,tipos:$$("[data-tarifa]").map(i=>({id:i.dataset.tarifa,tarifa:+i.value}))});toast("Configurações salvas")};
+
+/* ================= init ================= */
+(async()=>{try{ME=await api("GET","/me");start()}catch{showLogin()}})();
+</script>
+</body>
+</html>
