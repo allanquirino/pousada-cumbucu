@@ -2,7 +2,7 @@
 import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import { createReadStream } from 'node:fs';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, createHmac, timingSafeEqual } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pathToFileURL } from 'node:url';
@@ -123,6 +123,17 @@ const on = (method, p, mod, lvl, fn) => routes.push({ method, re: new RegExp('^'
 const pub = (m, p, fn) => on(m, p, null, null, fn);
 
 /* ---------- auth ---------- */
+// No modo demonstração em memória (Vercel sem DATABASE_URL) cada instância tem o seu banco; por isso a sessão
+// vai assinada no próprio cookie (HMAC) e vale em qualquer instância. Com banco real, as sessões ficam na tabela.
+const stateless = () => driver() === 'pglite' && !!process.env.VERCEL;
+const SECRET = process.env.SESSION_SECRET || createHmac('sha256', 'pousada-demo').update(process.env.VERCEL_DEPLOYMENT_ID || process.env.VERCEL_PROJECT_ID || 'local').digest('hex');
+const sign = (p) => createHmac('sha256', SECRET).update(p).digest('hex');
+const makeToken = (uid) => { const p = `${uid}.${Date.now() + 12 * 3600e3}`; return `${p}.${sign(p)}`; };
+function readToken(t) {
+  const m = /^(\d+)\.(\d+)\.([a-f0-9]{64})$/.exec(t || ''); if (!m) return null;
+  const ok = timingSafeEqual(Buffer.from(sign(`${m[1]}.${m[2]}`)), Buffer.from(m[3]));
+  return ok && +m[2] > Date.now() ? +m[1] : null;
+}
 const fails = new Map();
 pub('POST', '/api/login', async ({ body, ip, setCookie }) => {
   const key = ip + '|' + str(body.usuario, 40).toLowerCase();
@@ -131,12 +142,12 @@ pub('POST', '/api/login', async ({ body, ip, setCookie }) => {
   const u = (await get('SELECT * FROM users WHERE usuario=? AND ativo=1', str(body.usuario, 40).toLowerCase()));
   if (!u || !checkPw(String(body.senha || ''), u.senha)) { fails.set(key, { n: (f?.n || 0) + 1, t: Date.now() }); bad('Usuário ou senha incorretos.', 401); }
   fails.delete(key);
-  const token = randomBytes(32).toString('hex');
-  (await run('INSERT INTO sessions VALUES(?,?,?)', token, u.id, Date.now() + 12 * 3600e3));
+  const token = stateless() ? makeToken(u.id) : randomBytes(32).toString('hex');
+  if (!stateless()) (await run('INSERT INTO sessions VALUES(?,?,?)', token, u.id, Date.now() + 12 * 3600e3));
   setCookie(token, 12 * 3600);
   return me(u);
 });
-pub('POST', '/api/logout', async ({ req, setCookie }) => { const t = cookie(req); if (t) (await run('DELETE FROM sessions WHERE token=?', t)); setCookie('', 0); return { ok: true }; });
+pub('POST', '/api/logout', async ({ req, setCookie }) => { const t = cookie(req); if (t && !stateless()) (await run('DELETE FROM sessions WHERE token=?', t)); setCookie('', 0); return { ok: true }; });
 const me = (u) => ({ id: u.id, nome: u.nome, usuario: u.usuario, role: u.role, roleLabel: ROLE_LABEL[u.role], perms: PERMS[u.role] });
 on('GET', '/api/me', '*', null, async ({ u }) => me(u));
 on('POST', '/api/me/senha', '*', null, async ({ u, body }) => {
@@ -485,7 +496,7 @@ on('PUT', '/api/config', 'config', 'w', async ({ body }) => {
 
 /* ================= HTTP ================= */
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.mp4': 'video/mp4', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp' };
-function cookie(req) { return /(?:^|;\s*)sid=([a-f0-9]{64})/.exec(req.headers.cookie || '')?.[1]; }
+function cookie(req) { return /(?:^|;\s*)sid=([\w.]{20,200})/.exec(req.headers.cookie || '')?.[1]; }
 const send = (res, code, data, headers = {}) => { const b = typeof data === 'string' ? data : JSON.stringify(data); res.writeHead(code, { 'content-type': typeof data === 'string' ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers }); res.end(b); };
 function readBody(req) {
   return new Promise((ok, no) => { let b = ''; req.on('data', (c) => { b += c; if (b.length > 1e6) { no(new HttpError(413, 'Corpo muito grande.')); req.destroy(); } }); req.on('end', () => { try { ok(b ? JSON.parse(b) : {}); } catch { no(new HttpError(400, 'JSON inválido.')); } }); req.on('error', no); });
@@ -556,8 +567,8 @@ export async function handler(req, res) {
       let u = null;
       if (route.mod) {
         const t = cookie(req);
-        const s = t && (await get('SELECT * FROM sessions WHERE token=? AND expira>?', t, Date.now()));
-        u = s && (await get('SELECT * FROM users WHERE id=? AND ativo=1', s.user_id));
+        const uid = !t ? null : stateless() ? readToken(t) : (await get('SELECT user_id FROM sessions WHERE token=? AND expira>?', t, Date.now()))?.user_id;
+        u = uid && (await get('SELECT * FROM users WHERE id=? AND ativo=1', uid));
         if (!u) return send(res, 401, { erro: 'Sessão expirada. Entre novamente.' });
         if (route.mod !== '*') {
           const p = perm(u.role, route.mod);

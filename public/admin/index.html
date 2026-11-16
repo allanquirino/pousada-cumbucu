@@ -145,6 +145,12 @@ A.savePw=async()=>{await api("POST","/me/senha",{atual:$("#p0").value,nova:$("#p
 const MENU=[["dashboard","Painel","📊","dashboard"],["reservas","Reservas","📖","reservas"],["checkin","Check-in / out","🛎","checkin"],["quartos","Quartos","🛏","quartos"],["limpeza","Limpeza","🧹","limpeza"],["passeios","Passeios","🌴","passeios"],["estoque","Estoque","📦","estoque"],["pagamentos","Pagamentos","💳","pagamentos"],["funcionarios","Funcionários","👥","funcionarios"],["integracoes","Booking / iCal","🔄","integracoes"],["config","Configurações","⚙️","config"]];
 let CUR="";
 async function start(){
+  try{await start_()}catch(e){
+    $("#login").classList.add("hidden");$("#app").classList.remove("hidden");
+    $("#main").innerHTML=`<div class="card"><h2>Não foi possível carregar o painel</h2><p class="red" style="margin:8px 0">${esc(e.message)}</p><p class="mut">Verifique o endereço <a href="/api/health">/api/health</a> e tente novamente.</p><div class="row" style="margin-top:12px"><button class="btn p" onclick="location.reload()">Tentar de novo</button></div></div>`;
+  }
+}
+async function start_(){
   $("#login").classList.add("hidden");$("#app").classList.remove("hidden");
   $("#wn").textContent=ME.nome;$("#wr").textContent=ME.roleLabel;
   TIPOS=(await api("GET","/public/config")).tipos;
