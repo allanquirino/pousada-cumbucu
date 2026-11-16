@@ -1,14 +1,24 @@
 # Pousada Bosque Cumbuco — site + sistema de gestão
 
 Site de reservas (público) e painel administrativo (`/admin`) da pousada, num único servidor Node.js
-**sem dependências** (Node ≥ 22.13, banco SQLite embutido).
+em Node.js 22 com **PostgreSQL**: Supabase em produção (via `DATABASE_URL`) e um Postgres embutido (PGlite) quando
+`DATABASE_URL` não existe, para rodar localmente sem conta nenhuma. É o mesmo dialeto nos dois, então o que passa no teste local vale no Supabase.
 
 ```bash
-npm start          # http://localhost:3000   ·   painel: http://localhost:3000/admin/
-npm test           # teste de fumaça (fluxos + permissões)
+npm install
+npm start          # http://localhost:3000   ·   painel: http://localhost:3000/admin/   (banco local em data/pglite)
+npm test           # teste de fumaça (fluxos + permissões), usa Postgres em memória
 ```
 
-Os dados ficam em `data/pousada.db` (ou `DATA_DIR`). Na primeira execução o banco é criado com **dados de demonstração**.
+Na primeira execução, com o banco vazio, o esquema é criado e populado com **dados de demonstração** (`SEED=demo`).
+
+## Supabase + Vercel
+1. **Supabase**: crie um projeto, copie a *Transaction pooler connection string* (porta 6543) → `DATABASE_URL`.
+   O app cria as tabelas sozinho na primeira requisição; ou aplique `supabase/migrations/20260101000000_init.sql` (gerado por `npm run db:export`).
+   As tabelas são criadas com **RLS ligado e sem políticas**: a API pública do Supabase (chave anon) não enxerga nada; só o servidor acessa.
+2. **Vercel**: importe o repositório (framework *Other*) e defina as variáveis de `.env.example`: `DATABASE_URL`, `SEED`, `CRON_SECRET` (e `ADMIN_PASSWORD` se `SEED=minimal`).
+   O site e o `/admin` saem da CDN (`public/`); a API roda numa função (`api/[...path].js`). O iCal da Booking é sincronizado por Vercel Cron (1x/dia no plano Hobby; use o botão "Sincronizar agora" ou um cron externo chamando `/api/cron/ical` com `Authorization: Bearer $CRON_SECRET` para frequência maior).
+3. Para a apresentação use `SEED=demo`. Para produção real use `SEED=minimal` (cria só o administrador) e troque a chave Pix em Configurações.
 
 ## Contas de demonstração (senha `bosque2026`)
 | Usuário | Função | Acessa |
@@ -42,6 +52,6 @@ O iCal é periódico (15–60 min), não instantâneo; reservas da Booking apare
 - **Instagram/passeios**: o Instagram exige login e não pôde ser lido; os passeios cadastrados são *sugestões* (marcadas) a confirmar com o cliente.
 - **Pagamento real**: o cartão é simulado (`gateway=demo`) e a chave Pix é de exemplo. Integrar um provedor (Mercado Pago, Stripe, Pagar.me…) para cobrança real e para confirmar o Pix automaticamente via `POST /api/webhooks/pix?token=…`. Nunca armazene dados de cartão.
 - Trocar **todas** as senhas e a chave Pix; colocar atrás de **HTTPS** (cookie `Secure` é automático via `X-Forwarded-Proto`); fazer backup de `data/`.
-- Hospedagem: precisa de disco persistente (VPS, Railway, Fly.io, Render com disco). Não serve em funções serverless (Vercel) com SQLite.
+- Limite do login contra tentativas repetidas é por instância (em memória); na Vercel considere a proteção de firewall/rate limit da plataforma.
 - Definir `WHATS_NUMERO` em `public/index.html` para a mensagem da reserva já ir pronta no WhatsApp.
 - Itens fora desta versão: notificações por e-mail/WhatsApp, emissão fiscal, relatórios avançados, política de cancelamento/reembolso automática, rate limiting nas rotas públicas.

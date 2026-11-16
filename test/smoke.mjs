@@ -6,7 +6,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 
 const PORT = 3999, B = `http://127.0.0.1:${PORT}`;
-const srv = spawn('node', ['server.js'], { env: { ...process.env, PORT, DATA_DIR: mkdtempSync(path.join(tmpdir(), 'pousada-')) }, stdio: 'ignore' });
+const srv = spawn('node', ['server.js'], { env: { ...process.env, PORT, DATABASE_URL: process.env.TEST_DATABASE_URL || '', PGLITE_MEMORY: '1', DATA_DIR: mkdtempSync(path.join(tmpdir(), 'pousada-')) }, stdio: 'inherit' });
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const addD = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return d.toLocaleDateString('sv-SE'); };
 async function login(usuario) {
@@ -15,7 +15,7 @@ async function login(usuario) {
   return async (m, u, b) => { const x = await fetch(B + '/api' + u, { method: m, headers: { cookie: ck, ...(b ? { 'content-type': 'application/json' } : {}) }, body: b ? JSON.stringify(b) : undefined }); return { s: x.status, d: await x.json().catch(() => ({})) }; };
 }
 try {
-  for (let i = 0; i < 30; i++) { try { await fetch(B + '/api/public/config'); break; } catch { await sleep(200); } }
+  for (let i = 0; i < 60; i++) { try { await fetch(B + '/api/public/config'); break; } catch { await sleep(200); } }
   const adm = await login('admin'), rec = await login('recepcao'), cam = await login('camareira'), fin = await login('financeiro');
   // permissões
   assert.equal((await cam('GET', '/reservas')).s, 403, 'camareira não vê reservas');
