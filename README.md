@@ -17,7 +17,7 @@ Na primeira execução, com o banco vazio, o esquema é criado e populado com **
    O app cria as tabelas sozinho na primeira requisição; ou aplique `supabase/migrations/20260101000000_init.sql` (gerado por `npm run db:export`).
    As tabelas são criadas com **RLS ligado e sem políticas**: a API pública do Supabase (chave anon) não enxerga nada; só o servidor acessa.
 2. **Vercel**: importe o repositório (framework *Other*) e defina as variáveis de `.env.example`: `DATABASE_URL`, `SEED`, `CRON_SECRET` (e `ADMIN_PASSWORD` se `SEED=minimal`).
-   O site e o `/admin` saem da CDN (`public/`); a API roda numa função (`api/[...path].js`). O iCal da Booking é sincronizado por Vercel Cron (1x/dia no plano Hobby; use o botão "Sincronizar agora" ou um cron externo chamando `/api/cron/ical` com `Authorization: Bearer $CRON_SECRET` para frequência maior).
+   O site e o `/admin` saem da CDN (`public/`); a API roda numa função (`api/index.js`). O iCal da Booking é sincronizado por Vercel Cron (1x/dia no plano Hobby; use o botão "Sincronizar agora" ou um cron externo chamando `/api/cron/ical` com `Authorization: Bearer $CRON_SECRET` para frequência maior).
 3. Para a apresentação use `SEED=demo`. Para produção real use `SEED=minimal` (cria só o administrador) e troque a chave Pix em Configurações.
 
 ## Contas de demonstração (senha `bosque2026`)

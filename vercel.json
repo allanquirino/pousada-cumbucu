@@ -3,10 +3,11 @@
   "framework": null,
   "buildCommand": "",
   "outputDirectory": "public",
-  "functions": { "api/[...path].js": { "maxDuration": 30, "includeFiles": "{src/**,node_modules/@electric-sql/pglite/dist/**}" } },
+  "functions": { "api/index.js": { "maxDuration": 30, "includeFiles": "{src/**,node_modules/@electric-sql/pglite/dist/**}" } },
   "rewrites": [
-    { "source": "/ical/:path*", "destination": "/api/ical/:path*" },
-    { "source": "/demo/:path*", "destination": "/api/demo/:path*" },
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/ical/(.*)", "destination": "/api" },
+    { "source": "/demo/(.*)", "destination": "/api" },
     { "source": "/admin", "destination": "/admin/index.html" }
   ],
   "crons": [{ "path": "/api/cron/ical", "schedule": "0 9 * * *" }],

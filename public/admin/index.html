@@ -119,7 +119,7 @@ async function api(m,u,b){
   const r=await fetch("/api"+u,{method:m,headers:b?{"content-type":"application/json"}:{},body:b?JSON.stringify(b):undefined,credentials:"same-origin"});
   const d=await r.json().catch(()=>({}));
   if(r.status===401&&u!=="/login"){showLogin();throw new Error(d.erro||"Sessão expirada")}
-  if(!r.ok){const e=new Error(d.erro||"Erro");e.status=r.status;throw e}
+  if(!r.ok){const e=new Error(d.erro||`Falha na comunicação com o servidor (HTTP ${r.status} em ${u})`);e.status=r.status;throw e}
   return d;
 }
 function toast(m,err){const t=$("#toast");t.textContent=m;t.className="on"+(err?" err":"");clearTimeout(t._t);t._t=setTimeout(()=>t.className="",3200)}

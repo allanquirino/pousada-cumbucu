@@ -592,7 +592,7 @@ function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("on");clea
 async function API(m,u,b){
   const r=await fetch("/api"+u,{method:m,headers:b?{"content-type":"application/json"}:{},body:b?JSON.stringify(b):undefined});
   const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error(d.erro||"Falha de conexão. Tente novamente.");
+  if(!r.ok)throw new Error(d.erro||`Falha de conexão (HTTP ${r.status}). Tente novamente.`);
   return d;
 }
 let CFG={sinalPct:30,gatewayDemo:true,passeios:[]};
