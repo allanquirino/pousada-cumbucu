@@ -78,6 +78,24 @@ try {
   assert.ok(det.code && det.nome && typeof det.saldo === 'number' && Array.isArray(det.pagamentos), 'detalhe da reserva completo');
   for (const u of ['/dashboard', '/reservas', '/quartos', '/mapa', '/limpeza', '/equipe-limpeza', '/passeios', '/passeios/reservas', '/estoque', '/estoque/1/mov', '/pagamentos', '/funcionarios', '/perfis', '/ical', '/config', '/me'])
     assert.equal((await adm('GET', u)).s, 200, 'GET ' + u);
+  // fotos das acomodações: upload, limite de 10, ordem, formato e permissão
+  const jpg = Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(64, 7)]).toString('base64');
+  let fotos = (await ger('GET', '/acomodacoes/dlx/fotos')).d.fotos; assert.equal(fotos.length, 2, 'duas fotos padrão por tipo');
+  const up = await ger('POST', '/acomodacoes/dlx/fotos', { dados: jpg }); assert.equal(up.s, 200);
+  const pubT = (await (await fetch(B + '/api/public/config')).json()).tipos.find((t) => t.id === 'dlx');
+  assert.equal(pubT.fotos.length, 3); assert.equal(pubT.fotos[2], `/api/fotos/${up.d.id}`, 'foto enviada aparece no site');
+  const img = await fetch(B + `/api/fotos/${up.d.id}`); assert.equal(img.headers.get('content-type'), 'image/jpeg');
+  assert.equal(Buffer.from(await img.arrayBuffer()).toString('base64'), jpg, 'bytes idênticos');
+  assert.equal((await ger('POST', '/acomodacoes/dlx/fotos', { dados: Buffer.from('<svg onload=alert(1)>xxxxxxxxxxxxxxxxxxxx').toString('base64') })).s, 415, 'SVG/HTML recusado');
+  assert.equal((await rec('POST', '/acomodacoes/dlx/fotos', { dados: jpg })).s, 403, 'recepção não envia fotos');
+  for (let i = 0; i < 7; i++) assert.equal((await ger('POST', '/acomodacoes/dlx/fotos', { dados: jpg })).s, 200);
+  assert.equal((await ger('POST', '/acomodacoes/dlx/fotos', { dados: jpg })).s, 409, 'máximo de 10 fotos por tipo');
+  fotos = (await ger('GET', '/acomodacoes/dlx/fotos')).d.fotos; assert.equal(fotos.length, 10);
+  const ids = fotos.map((f) => f.id).reverse();
+  assert.equal((await ger('PUT', '/acomodacoes/dlx/fotos/ordem', { ids })).s, 200);
+  assert.equal((await ger('GET', '/acomodacoes/dlx/fotos')).d.fotos[0].id, ids[0], 'ordem salva (primeira = capa)');
+  assert.equal((await ger('DELETE', '/fotos/' + ids[0])).s, 200);
+  assert.equal((await ger('GET', '/acomodacoes/dlx/fotos')).d.fotos.length, 9);
   console.log('OK — todos os testes passaram');
 } catch (e) { console.error('FALHOU:', e.message); process.exitCode = 1; }
 finally { srv.kill(); }

@@ -159,7 +159,7 @@ on('POST', '/api/me/senha', '*', null, async ({ u, body }) => {
 
 /* ---------- API pública (site) ---------- */
 pub('GET', '/api/public/config', async () => ({
-  tipos: (await all('SELECT id,nome,cap,tarifa,descricao FROM tipos')),
+  tipos: await tiposComFotos(),
   passeios: (await all('SELECT id,nome,descricao,preco,duracao,img FROM passeios WHERE ativo=1')),
   sinalPct: num((await cfgAll()).sinal_pct, 30), gatewayDemo: (await cfgAll()).gateway === 'demo',
 }));
@@ -237,6 +237,20 @@ pub('POST', '/api/public/passeios/reservar', async ({ body }) => {
   (await run('INSERT INTO passeio_reservas(passeio_id,reserva_id,nome,tel,data,pessoas,valor,status,criado) VALUES(?,?,?,?,?,?,?,?,?)', t.id, r.id, r.nome, r.tel, data, pessoas, t.preco * pessoas, 'solicitado', nowIso()));
   return { ok: true };
 });
+
+
+/* ---------- Fotos das acomodações ---------- */
+const MAX_FOTOS = 10;
+const sniff = (b) => b.length > 12 && (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff ? 'image/jpeg'
+  : b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 ? 'image/png'
+  : b.toString('ascii', 0, 4) === 'RIFF' && b.toString('ascii', 8, 12) === 'WEBP' ? 'image/webp' : null);
+const fotoOut = (f) => ({ id: f.id, url: f.up ? `/api/fotos/${f.id}` : f.url, upload: !!f.up });
+const listaFotos = async (tipo) => (await all('SELECT id,url,(dados IS NOT NULL) AS up FROM fotos WHERE tipo=? ORDER BY ordem, id', tipo)).map(fotoOut);
+async function tiposComFotos() {
+  const tipos = await all('SELECT id,nome,cap,tarifa,descricao FROM tipos');
+  const fs = await all('SELECT id,tipo,url,(dados IS NOT NULL) AS up FROM fotos ORDER BY tipo, ordem, id');
+  return tipos.map((t) => ({ ...t, fotos: fs.filter((f) => f.tipo === t.id).map((f) => fotoOut(f).url) }));
+}
 
 /* ---------- Dashboard ---------- */
 on('GET', '/api/dashboard', 'dashboard', 'r', async () => {
@@ -488,6 +502,31 @@ on('POST', '/api/ical/feeds/:id/sync', 'integracoes', 'w', async ({ params }) =>
 });
 on('POST', '/api/ical/sync', 'integracoes', 'w', async () => { await (await syncAll()); return { ok: true }; });
 
+
+on('GET', '/api/acomodacoes/:tipo/fotos', 'config', 'r', async ({ params }) => ({ max: MAX_FOTOS, fotos: await listaFotos(params.tipo) }));
+on('POST', '/api/acomodacoes/:tipo/fotos', 'config', 'w', async ({ params, body }) => {
+  if (!(await get('SELECT 1 FROM tipos WHERE id=?', params.tipo))) bad('Acomodação não encontrada.', 404);
+  const buf = Buffer.from(String(body.dados || ''), 'base64');
+  if (buf.length < 20) bad('Arquivo vazio ou inválido.');
+  if (buf.length > 3.3e6) bad('Foto muito grande (máx. 3 MB). Reduza e tente de novo.', 413);
+  const mime = sniff(buf); if (!mime) bad('Formato não aceito. Use JPG, PNG ou WebP.', 415);
+  const n = (await get('SELECT COUNT(*) n, COALESCE(MAX(ordem),0) m FROM fotos WHERE tipo=?', params.tipo));
+  if (n.n >= MAX_FOTOS) bad(`Limite de ${MAX_FOTOS} fotos por acomodação. Remova alguma para enviar outra.`, 409);
+  const id = await insert('INSERT INTO fotos(tipo,ordem,mime,dados,criado) VALUES(?,?,?,?,?)', params.tipo, n.m + 1, mime, buf, nowIso());
+  return { ok: true, id };
+});
+on('PUT', '/api/acomodacoes/:tipo/fotos/ordem', 'config', 'w', async ({ params, body }) => {
+  const ids = (Array.isArray(body.ids) ? body.ids : []).map(Number);
+  const atuais = (await all('SELECT id FROM fotos WHERE tipo=?', params.tipo)).map((f) => f.id);
+  if (ids.length !== atuais.length || !ids.every((i) => atuais.includes(i))) bad('Lista de fotos inválida.');
+  await tx(async () => { for (const [i, id] of ids.entries()) await run('UPDATE fotos SET ordem=? WHERE id=? AND tipo=?', i, id, params.tipo); });
+  return { ok: true };
+});
+on('DELETE', '/api/fotos/:id', 'config', 'w', async ({ params }) => {
+  const r = await run('DELETE FROM fotos WHERE id=?', num(params.id)); if (!r.changes) bad('Foto não encontrada.', 404);
+  return { ok: true };
+});
+
 /* ---------- Configurações ---------- */
 on('GET', '/api/config', 'config', 'r', async () => ({ ...(await cfgAll()), ical_token: undefined, webhook_token: undefined, tipos: (await all('SELECT * FROM tipos')) }));
 on('PUT', '/api/config', 'config', 'w', async ({ body }) => {
@@ -504,7 +543,7 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; cha
 function cookie(req) { return /(?:^|;\s*)sid=([\w.]{20,200})/.exec(req.headers.cookie || '')?.[1]; }
 const send = (res, code, data, headers = {}) => { const b = typeof data === 'string' ? data : JSON.stringify(data); res.writeHead(code, { 'content-type': typeof data === 'string' ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8', 'cache-control': 'no-store', ...headers }); res.end(b); };
 function readBody(req) {
-  return new Promise((ok, no) => { let b = ''; req.on('data', (c) => { b += c; if (b.length > 1e6) { no(new HttpError(413, 'Corpo muito grande.')); req.destroy(); } }); req.on('end', () => { try { ok(b ? JSON.parse(b) : {}); } catch { no(new HttpError(400, 'JSON inválido.')); } }); req.on('error', no); });
+  return new Promise((ok, no) => { let b = ''; req.on('data', (c) => { b += c; if (b.length > 4.5e6) { no(new HttpError(413, 'Corpo muito grande.')); req.destroy(); } }); req.on('end', () => { try { ok(b ? JSON.parse(b) : {}); } catch { no(new HttpError(400, 'JSON inválido.')); } }); req.on('error', no); });
 }
 
 async function serveStatic(req, res, pathname) {
@@ -561,6 +600,13 @@ export async function handler(req, res) {
       res.writeHead(200, { 'content-type': 'text/calendar; charset=utf-8' }); return res.end(demoIcs(m[1]));
     }
     // Vercel Cron (ou qualquer agendador): sincroniza os calendários da Booking. Exige CRON_SECRET.
+    if ((m = /^\/api\/fotos\/(\d+)$/.exec(pathname)) && req.method === 'GET') { // foto enviada pelo painel (binário)
+      const f = await get('SELECT mime,dados FROM fotos WHERE id=? AND dados IS NOT NULL', +m[1]);
+      if (!f) return send(res, 404, { erro: 'Foto não encontrada.' });
+      const b = Buffer.from(f.dados);
+      res.writeHead(200, { 'content-type': f.mime, 'content-length': b.length, 'cache-control': 'public, max-age=31536000, immutable', 'x-content-type-options': 'nosniff' });
+      return res.end(b);
+    }
     if (pathname === '/api/cron/ical') {
       if (!process.env.CRON_SECRET || req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) return send(res, 401, { erro: 'Não autorizado.' });
       await syncAll(); return send(res, 200, { ok: true });

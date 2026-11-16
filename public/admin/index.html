@@ -77,6 +77,7 @@ td{padding:9px 10px;border-bottom:1px solid #f0ebdd;vertical-align:middle}tr.cli
 .mtop{display:none}
 @media(max-width:900px){#app{grid-template-columns:1fr}aside{position:static;height:auto;flex-direction:column;padding:10px}nav{display:flex;overflow-x:auto;gap:4px;padding-bottom:6px}nav a{white-space:nowrap;margin:0}.who{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding-top:8px}.who b{display:inline}
   main{padding:16px 14px}.g2,.g3,.g4,.kan,.f{grid-template-columns:1fr}.brand{padding-bottom:8px}}
+.fotos{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}.ft{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#efeadb;border:1px solid var(--line)}.ft img{width:100%;height:100%;object-fit:cover;display:block}.ft .capa{position:absolute;top:6px;left:6px;background:var(--verde2);color:#fff;font-size:10px;padding:1px 7px;border-radius:99px}.ft .fa{position:absolute;left:0;right:0;bottom:0;display:flex;gap:4px;justify-content:center;padding:4px;background:linear-gradient(transparent,rgba(0,0,0,.55))}.ft .fa .btn{padding:1px 7px;line-height:1.4}.ft .fa .btn:disabled{opacity:.4;cursor:default}.ft.add{display:grid;place-items:center;text-align:center;cursor:pointer;border:2px dashed #cfc7ad;color:var(--mut);font-size:12px}.ft.add:hover{border-color:var(--verde2);color:var(--verde2)}
 </style>
 </head>
 <body>
@@ -389,13 +390,50 @@ V.config=async()=>{
   $("#main").innerHTML=head("Configurações","Tarifas, pagamentos e dados da pousada")+
   `<div class="card"><h2>Acomodações: tarifa e descrição completa</h2><p class="mut" style="margin-bottom:12px">A descrição aparece no site, no cartão de cada acomodação. Escreva à vontade: tamanho, camas, vista, comodidades, regras.</p>
   ${c.tipos.map(t=>`<div style="border-top:1px solid var(--line);padding:14px 0"><div class="row sp" style="margin-bottom:8px"><b>${esc(t.nome)}</b><span class="mut">até ${t.cap} pessoas</span></div>
-   <div class="f"><div><label>Tarifa por diária (R$)</label><input type="number" step="0.01" data-tarifa="${t.id}" value="${t.tarifa}"></div><div class="full"><label>Descrição completa</label><textarea rows="5" maxlength="2000" data-desc="${t.id}" placeholder="Descreva a acomodação para os hóspedes…">${esc(t.descricao||"")}</textarea></div></div></div>`).join("")}</div>
+   <div class="f"><div><label>Tarifa por diária (R$)</label><input type="number" step="0.01" data-tarifa="${t.id}" value="${t.tarifa}"></div><div class="full"><label>Descrição completa</label><textarea rows="5" maxlength="2000" data-desc="${t.id}" placeholder="Descreva a acomodação para os hóspedes…">${esc(t.descricao||"")}</textarea></div>
+   <div class="full"><label>Fotos <span id="fc-${t.id}"></span> — a primeira é a capa no site</label><div class="fotos" id="fotos-${t.id}"><span class="mut">Carregando…</span></div></div></div></div>`).join("")}</div>
   <div class="card"><h2>Pagamento online</h2><div class="f"><div><label>Chave Pix da pousada</label><input id="cx" value="${esc(c.pix_chave)}"></div><div><label>Nome do recebedor (Pix)</label><input id="cn" value="${esc(c.pix_nome)}"></div><div><label>Sinal para confirmar (%)</label><input id="cs" type="number" min="0" max="100" value="${esc(c.sinal_pct)}"></div><div><label>Modo do gateway de cartão</label><select id="cg"><option value="demo" ${c.gateway==="demo"?"selected":""}>Demonstração (simulado)</option><option value="producao" ${c.gateway!=="demo"?"selected":""}>Produção (requer integração)</option></select></div></div>
    <p class="mut" style="margin-top:8px">O Pix gera um código “copia e cola” (BR Code) válido. A confirmação automática do Pix e a cobrança real no cartão dependem de um provedor (Mercado Pago, Stripe, Pagar.me…) — veja o README.</p></div>
   <div class="card"><h2>Dados</h2><div class="f"><div><label>Nome</label><input id="cp" value="${esc(c.pousada)}"></div><div><label>Cidade</label><input id="cc" value="${esc(c.cidade)}"></div></div></div>
   <button class="btn p" data-a="saveCfg">Salvar configurações</button>`;
+  c.tipos.forEach(t=>renderFotos(t.id));
 };
 A.saveCfg=async()=>{await api("PUT","/config",{pix_chave:$("#cx").value,pix_nome:$("#cn").value,sinal_pct:$("#cs").value,gateway:$("#cg").value,pousada:$("#cp").value,cidade:$("#cc").value,tipos:$$("[data-tarifa]").map(i=>({id:i.dataset.tarifa,tarifa:+i.value,descricao:$(`[data-desc="${i.dataset.tarifa}"]`).value}))});toast("Configurações salvas")};
+
+
+/* ---- fotos das acomodações ---- */
+const FOTOS={};
+async function renderFotos(tipo){
+  const box=$("#fotos-"+tipo);if(!box)return;
+  const d=await api("GET",`/acomodacoes/${tipo}/fotos`);FOTOS[tipo]=d.fotos;
+  $("#fc-"+tipo).textContent=`(${d.fotos.length}/${d.max})`;
+  box.innerHTML=d.fotos.map((f,i)=>`<div class="ft"><img src="${esc(f.url)}" alt="Foto ${i+1}" loading="lazy">${i===0?'<b class="capa">Capa</b>':""}
+    <div class="fa"><button class="btn s" title="Mover para trás" data-a="fotoMove" data-t="${tipo}" data-i="${i}" data-d="-1" ${i===0?"disabled":""}>◀</button><button class="btn s" title="Mover para frente" data-a="fotoMove" data-t="${tipo}" data-i="${i}" data-d="1" ${i===d.fotos.length-1?"disabled":""}>▶</button><button class="btn s d" title="Remover" data-a="fotoDel" data-t="${tipo}" data-id="${f.id}">✕</button></div></div>`).join("")+
+    (d.fotos.length<d.max?`<label class="ft add"><input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden data-up="${tipo}"><span>＋<br>Adicionar fotos</span></label>`:"");
+  const inp=box.querySelector("[data-up]");if(inp)inp.onchange=guard(()=>upFotos(tipo,inp));
+}
+async function resizeImg(file,max=1600){
+  const bmp=await createImageBitmap(file);const k=Math.min(1,max/Math.max(bmp.width,bmp.height));
+  const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+  c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+  let q=.85,blob;do{blob=await new Promise(r=>c.toBlob(r,"image/jpeg",q));q-=.1}while(blob.size>2.4e6&&q>.3);
+  return blob;
+}
+const b64=blob=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(",")[1]);r.onerror=no;r.readAsDataURL(blob)});
+async function upFotos(tipo,inp){
+  const files=[...inp.files];inp.value="";let ok=0;
+  const livre=10-(FOTOS[tipo]||[]).length;
+  if(files.length>livre)toast(`Só cabem mais ${livre} foto(s); as demais serão ignoradas.`,true);
+  for(const f of files.slice(0,livre)){
+    toast(`Enviando ${f.name}… (${ok+1}/${Math.min(files.length,livre)})`);
+    let blob;try{blob=await resizeImg(f)}catch{toast(`Não foi possível ler "${f.name}". Use JPG, PNG ou WebP.`,true);continue}
+    try{await api("POST",`/acomodacoes/${tipo}/fotos`,{dados:await b64(blob)});ok++}catch(e){toast(e.message,true);break}
+  }
+  if(ok)toast(`${ok} foto(s) enviada(s) — já aparecem no site`);
+  renderFotos(tipo);
+}
+A.fotoDel=async({t,id})=>{if(!confirm("Remover esta foto do site?"))return;await api("DELETE","/fotos/"+id);toast("Foto removida");renderFotos(t)};
+A.fotoMove=async({t,i,d})=>{const ids=FOTOS[t].map(f=>f.id),a=+i,b=a+(+d);[ids[a],ids[b]]=[ids[b],ids[a]];await api("PUT",`/acomodacoes/${t}/fotos/ordem`,{ids});renderFotos(t)};
 
 /* ================= init ================= */
 (async()=>{try{ME=await api("GET","/me");start()}catch{showLogin()}})();

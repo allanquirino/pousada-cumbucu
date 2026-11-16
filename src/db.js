@@ -107,8 +107,21 @@ export function initDb() {
   return readyP;
 }
 
+// Fotos que já estavam no site (arquivos estáticos); no painel podem ser removidas ou reordenadas.
+const FOTOS_PADRAO = {
+  std: ['media/q-standard.jpg', 'media/chales.jpg'],
+  dlx: ['media/q-deluxe.jpg', 'media/q-detalhe.jpg'],
+  tri: ['media/q-triplo.jpg', 'media/q-detalhe.jpg'],
+  fam: ['media/q-quadruplo.jpg', 'media/piscina-jardim.jpg'],
+};
+async function fotosPadrao() {
+  for (const [tipo, urls] of Object.entries(FOTOS_PADRAO))
+    for (const [i, u] of urls.entries()) await run('INSERT INTO fotos(tipo,ordem,url,criado) VALUES(?,?,?,?)', tipo, i, '/' + u, new Date().toISOString());
+}
+
 /* ---------- atualizações em bancos já existentes ---------- */
 async function upgrade() {
+  if (!(await get('SELECT 1 FROM fotos LIMIT 1'))) await fotosPadrao();
   for (const t of TIPOS) await run("UPDATE tipos SET descricao=? WHERE id=? AND (descricao IS NULL OR descricao='')", t.descricao, t.id);
   const demo = (await get("SELECT v FROM settings WHERE k='gateway'"))?.v === 'demo';
   if (demo && !(await get("SELECT 1 FROM users WHERE usuario='gerente'")))
@@ -139,6 +152,7 @@ async function seed(mode) {
     for (const [k, v] of Object.entries(cfg)) await run(SET, k, v);
     for (const t of TIPOS) await run('INSERT INTO tipos(id,nome,cap,tarifa,descricao) VALUES(?,?,?,?,?)', t.id, t.nome, t.cap, t.tarifa, t.descricao);
     for (const [n, t] of QUARTOS) await run('INSERT INTO quartos(num,tipo) VALUES(?,?)', n, t);
+    await fotosPadrao();
 
     if (mode === 'minimal') { // produção: só o administrador (senha em ADMIN_PASSWORD) e a estrutura
       const pwd = process.env.ADMIN_PASSWORD;

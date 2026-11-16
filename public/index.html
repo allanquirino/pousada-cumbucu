@@ -296,6 +296,7 @@ table.rt td select{min-width:140px}
 .login{max-width:none}
 }
 .room .desc{color:var(--mut);font-size:.93rem;line-height:1.55;margin:.4rem 0 .8rem}.room .desc:empty{display:none}
+.room .th{display:flex;gap:6px;padding:8px 14px 0;overflow-x:auto}.room .th img,.room .th button{flex:0 0 auto;width:56px;height:42px;object-fit:cover;border-radius:8px;cursor:zoom-in;border:0;background:var(--areia2);color:var(--txt);font:600 .8rem Inter,sans-serif}.room .th img:hover{outline:2px solid var(--verde)}
 </style>
 </head>
 <body>
@@ -597,7 +598,18 @@ async function API(m,u,b){
   return d;
 }
 let CFG={sinalPct:30,gatewayDemo:true,passeios:[]};
-API("GET","/public/config").then(c=>{CFG=c;c.tipos.forEach(x=>{const el=document.querySelector(`.room[data-tipo="${x.id}"] .desc`);if(el)el.textContent=x.descricao||""});c.tipos.forEach(x=>{const t=tipo(x.id);if(t){t.tarifa=x.tarifa}});sumUpd();renderTours()}).catch(()=>{});
+API("GET","/public/config").then(c=>{CFG=c;c.tipos.forEach(x=>{if(x.fotos&&x.fotos.length)applyFotos(x)});c.tipos.forEach(x=>{const el=document.querySelector(`.room[data-tipo="${x.id}"] .desc`);if(el)el.textContent=x.descricao||""});c.tipos.forEach(x=>{const t=tipo(x.id);if(t){t.tarifa=x.tarifa}});sumUpd();renderTours()}).catch(()=>{});
+function applyFotos(x){
+  const t=tipo(x.id);if(t){t.fotos=x.fotos;t.img=x.fotos[0]}
+  const card=document.querySelector(`.room[data-tipo="${x.id}"]`);if(!card)return;
+  const ph=card.querySelector(".ph");ph.dataset.fotos=x.fotos.join(",");
+  const im=ph.querySelector("img");im.src=x.fotos[0];
+  const tg=ph.querySelectorAll(".tag");tg[tg.length-1].textContent="⤢ "+x.fotos.length+" fotos";
+  let th=card.querySelector(".th");if(th)th.remove();
+  if(x.fotos.length>1){th=document.createElement("div");th.className="th";
+    th.innerHTML=x.fotos.slice(0,5).map((u,k)=>`<img src="${u}" alt="Foto ${k+1} de ${x.nome}" loading="lazy" data-k="${k}">`).join("")+(x.fotos.length>5?`<button type="button" data-k="5">+${x.fotos.length-5}</button>`:"");
+    th.onclick=e=>{const k=e.target.dataset.k;if(k!==undefined)lbShow(x.fotos,+k)};ph.after(th)}
+}
 function renderTours(){
   if(!CFG.passeios.length)return;
   $("#toursList").innerHTML=CFG.passeios.slice(0,6).map(p=>`<div class="tour rv in"><img src="${esc(p.img)}" alt="${esc(p.nome)}" loading="lazy"><div class="ov"><h3>${esc(p.nome)}</h3><p>${esc(p.descricao)}</p></div></div>`).join("");

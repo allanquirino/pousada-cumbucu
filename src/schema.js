@@ -1,5 +1,5 @@
 // Esquema PostgreSQL (Supabase). Fonte única: `npm run db:export` gera supabase/migrations/*.sql a partir daqui.
-export const TABLES = ['settings', 'users', 'sessions', 'tipos', 'quartos', 'reservas', 'pagamentos', 'limpeza', 'passeios', 'passeio_reservas', 'estoque', 'estoque_mov', 'ical_feeds', 'ical_blocos'];
+export const TABLES = ['settings', 'users', 'sessions', 'tipos', 'quartos', 'reservas', 'pagamentos', 'limpeza', 'passeios', 'passeio_reservas', 'estoque', 'estoque_mov', 'ical_feeds', 'ical_blocos', 'fotos'];
 
 export const SCHEMA = `
 CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT);
@@ -31,6 +31,10 @@ CREATE TABLE IF NOT EXISTS ical_feeds (
 CREATE TABLE IF NOT EXISTS ical_blocos (id SERIAL PRIMARY KEY, feed_id INTEGER, uid TEXT, quarto TEXT, checkin TEXT, checkout TEXT, resumo TEXT);
 CREATE INDEX IF NOT EXISTS ix_blocos ON ical_blocos(quarto, checkin, checkout);
 ALTER TABLE tipos ADD COLUMN IF NOT EXISTS descricao TEXT DEFAULT '';
+CREATE TABLE IF NOT EXISTS fotos (
+  id SERIAL PRIMARY KEY, tipo TEXT NOT NULL REFERENCES tipos(id) ON DELETE CASCADE, ordem INTEGER DEFAULT 0,
+  url TEXT, mime TEXT, dados BYTEA, legenda TEXT DEFAULT '', criado TEXT);
+CREATE INDEX IF NOT EXISTS ix_fotos_tipo ON fotos(tipo, ordem);
 `;
 
 // Segurança no Supabase: o app acessa o banco direto (role postgres, ignora RLS). Ativar RLS sem políticas
