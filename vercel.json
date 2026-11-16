@@ -3,7 +3,7 @@
   "framework": null,
   "buildCommand": "",
   "outputDirectory": "public",
-  "functions": { "api/[...path].js": { "maxDuration": 30, "includeFiles": "src/**" } },
+  "functions": { "api/[...path].js": { "maxDuration": 30, "includeFiles": "{src/**,node_modules/@electric-sql/pglite/dist/**}" } },
   "rewrites": [
     { "source": "/ical/:path*", "destination": "/api/ical/:path*" },
     { "source": "/demo/:path*", "destination": "/api/demo/:path*" },

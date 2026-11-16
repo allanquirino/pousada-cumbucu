@@ -42,7 +42,10 @@ async function connect() {
   const url = process.env.DATABASE_URL;
   if (url) {
     const local = /@(localhost|127\.0\.0\.1)/.test(url);
-    const pool = new pg.Pool({ connectionString: url, max: +process.env.PG_POOL_MAX || 3, ssl: local ? false : { rejectUnauthorized: false } });
+    let conn = url.trim();
+    try { const u = new URL(conn); u.searchParams.delete('sslmode'); conn = u.toString(); } catch { /* usa como veio */ }
+    const pool = new pg.Pool({ connectionString: conn, max: +process.env.PG_POOL_MAX || 3, ssl: local ? false : { rejectUnauthorized: false } });
+    pool.on('error', (e) => console.error('[db] erro no pool:', e.code || e.message));
     return {
       driver: 'postgres',
       query: async (sql, params = []) => { const r = await pool.query(sql, params); return { rows: r.rows, count: r.rowCount }; },
@@ -57,7 +60,12 @@ async function connect() {
       exec: async (sql) => { await pool.query(sql); },
     };
   }
-  // Sem DATABASE_URL: Postgres embutido (PGlite) só para desenvolvimento/testes locais.
+  // Sem DATABASE_URL: Postgres embutido (PGlite). Local = arquivo em data/; na Vercel (disco somente leitura)
+  // = memória, apenas para demonstração (os dados somem quando a função reinicia). Para uso real defina DATABASE_URL.
+  if (process.env.VERCEL && !process.env.PGLITE_MEMORY) {
+    process.env.PGLITE_MEMORY = '1';
+    console.warn('[db] DATABASE_URL ausente: usando banco em memória (modo demonstração).');
+  }
   const { PGlite } = await import('@electric-sql/pglite');
   const dir = process.env.DATA_DIR || './data';
   if (!process.env.PGLITE_MEMORY) mkdirSync(dir, { recursive: true });

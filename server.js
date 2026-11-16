@@ -6,7 +6,7 @@ import { randomBytes } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { pathToFileURL } from 'node:url';
-import { initDb, get, all, run, insert, tx, hashPw, checkPw, today, addD, nights, TZ } from './src/db.js';
+import { initDb, driver, get, all, run, insert, tx, hashPw, checkPw, today, addD, nights, TZ } from './src/db.js';
 import { PERMS, ROLE_LABEL, perm, pixPayload, buildIcs, parseIcs } from './src/lib.js';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
@@ -525,7 +525,13 @@ export async function handler(req, res) {
   const pathname = url.pathname.replace(/^\/api(?=\/(ical|demo)\/.*\.ics$)/, '');
   const proto = req.headers['x-forwarded-proto'] || 'http'; const base = `${proto}://${req.headers.host}`;
   try {
-    await initDb();
+    try { await initDb(); } catch (e) {
+      console.error('[db] falha ao iniciar o banco:', e.code || '', e.message);
+      const dica = { ENOTFOUND: 'host do banco não encontrado (use a string do Transaction pooler, porta 6543)', ECONNREFUSED: 'conexão recusada', ETIMEDOUT: 'tempo esgotado ao conectar', '28P01': 'senha do banco incorreta', '28000': 'usuário/senha do banco incorretos', XX000: 'tenant/usuário não encontrado: confira o usuário postgres.<ref> na string' }[e.code] || 'confira a DATABASE_URL';
+      if (pathname === '/api/health') return send(res, 503, { ok: false, banco: 'indisponivel', codigo: e.code || null, dica });
+      return send(res, 503, { erro: `Banco de dados indisponível: ${dica}.` });
+    }
+    if (pathname === '/api/health') return send(res, 200, { ok: true, banco: driver() });
     let m;
     if ((m = /^\/ical\/(quarto\/(\w+)|todos)\.ics$/.exec(pathname))) {
       if (url.searchParams.get('t') !== (await cfgAll()).ical_token) return send(res, 401, 'Token inválido');
@@ -579,8 +585,8 @@ export default handler;
 // Execução local / VPS: sobe o servidor HTTP e sincroniza o iCal periodicamente.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   http.createServer(handler).listen(PORT, async () => {
-    await initDb();
-    await run('DELETE FROM sessions WHERE expira<?', Date.now());
+    try { await initDb(); await run('DELETE FROM sessions WHERE expira<?', Date.now()); }
+    catch (e) { console.error('[db] banco indisponível na inicialização:', e.code || '', e.message); }
     console.log(`Pousada Bosque — http://localhost:${PORT}   painel: http://localhost:${PORT}/admin/  (fuso ${TZ})`);
     syncAll().catch(() => {});
     setInterval(() => syncAll().catch(() => {}), 15 * 60e3).unref();
