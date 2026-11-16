@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS ical_feeds (
   id SERIAL PRIMARY KEY, quarto TEXT, canal TEXT, url TEXT, ativo INTEGER DEFAULT 1, ultimo_sync TEXT, ultimo_status TEXT, conflitos INTEGER DEFAULT 0);
 CREATE TABLE IF NOT EXISTS ical_blocos (id SERIAL PRIMARY KEY, feed_id INTEGER, uid TEXT, quarto TEXT, checkin TEXT, checkout TEXT, resumo TEXT);
 CREATE INDEX IF NOT EXISTS ix_blocos ON ical_blocos(quarto, checkin, checkout);
+ALTER TABLE tipos ADD COLUMN IF NOT EXISTS descricao TEXT DEFAULT '';
 
 -- RLS ligado e sem políticas: a API pública do Supabase (anon/publishable) não acessa nada.
 -- O app conecta direto ao Postgres (role postgres), que ignora RLS.

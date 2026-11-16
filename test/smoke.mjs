@@ -58,6 +58,26 @@ try {
   // iCal: exporta reservas diretas, importa bloqueios
   const ic = (await adm('GET', '/ical')).d; const ics = await (await fetch(ic.todos)).text(); assert.match(ics, /BEGIN:VCALENDAR/);
   assert.equal((await fetch(B + '/ical/todos.ics?t=errado')).status, 401);
+  // gerente: edita descrição das acomodações e gerencia equipe, mas não cria administradores
+  const ger = await login('gerente');
+  const txt = 'Descrição de teste do quarto Standard.';
+  assert.equal((await ger('PUT', '/config', { tipos: [{ id: 'std', tarifa: 270, descricao: txt }] })).s, 200);
+  const cfgPub = await (await fetch(B + '/api/public/config')).json();
+  assert.equal(cfgPub.tipos.find((t) => t.id === 'std').descricao, txt, 'descrição aparece no site');
+  assert.equal(cfgPub.tipos.find((t) => t.id === 'std').tarifa, 270);
+  assert.equal((await rec('PUT', '/config', { tipos: [] })).s, 403, 'recepção não edita configurações');
+  assert.equal((await ger('POST', '/funcionarios', { nome: 'Novo Admin', usuario: 'novoadmin', senha: '12345678', role: 'admin' })).s, 403);
+  assert.equal((await ger('POST', '/funcionarios', { nome: 'Nova Recep', usuario: 'novarecep', senha: '12345678', role: 'recepcao' })).s, 200);
+  const adminId = (await adm('GET', '/funcionarios')).d.find((u) => u.usuario === 'admin').id;
+  assert.equal((await ger('PUT', '/funcionarios/' + adminId, { senha: 'novasenha123' })).s, 403, 'gerente não mexe na conta do administrador');
+  // varredura: toda tela de leitura do painel responde e traz os campos esperados
+  const cfg = (await adm('GET', '/config')).d;
+  assert.ok(cfg.pix_chave && cfg.pousada && cfg.sinal_pct, 'configurações carregam (chave Pix, nome, sinal)');
+  assert.equal(cfg.ical_token, undefined, 'token do iCal não vai para a tela');
+  const det = (await adm('GET', '/reservas/' + id)).d;
+  assert.ok(det.code && det.nome && typeof det.saldo === 'number' && Array.isArray(det.pagamentos), 'detalhe da reserva completo');
+  for (const u of ['/dashboard', '/reservas', '/quartos', '/mapa', '/limpeza', '/equipe-limpeza', '/passeios', '/passeios/reservas', '/estoque', '/estoque/1/mov', '/pagamentos', '/funcionarios', '/perfis', '/ical', '/config', '/me'])
+    assert.equal((await adm('GET', u)).s, 200, 'GET ' + u);
   console.log('OK — todos os testes passaram');
 } catch (e) { console.error('FALHOU:', e.message); process.exitCode = 1; }
 finally { srv.kill(); }

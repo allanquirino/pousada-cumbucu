@@ -101,17 +101,26 @@ export function initDb() {
       if (base.driver === 'postgres' && process.env.ENABLE_RLS !== '0') await base.exec(RLS);
       const n = (await get('SELECT COUNT(*) n FROM users')).n;
       if (!n) await seed(process.env.SEED === 'minimal' ? 'minimal' : 'demo');
+      else await upgrade();
     }
   })().catch((e) => { readyP = null; throw e; });
   return readyP;
 }
 
+/* ---------- atualizações em bancos já existentes ---------- */
+async function upgrade() {
+  for (const t of TIPOS) await run("UPDATE tipos SET descricao=? WHERE id=? AND (descricao IS NULL OR descricao='')", t.descricao, t.id);
+  const demo = (await get("SELECT v FROM settings WHERE k='gateway'"))?.v === 'demo';
+  if (demo && !(await get("SELECT 1 FROM users WHERE usuario='gerente'")))
+    await run('INSERT INTO users(nome,usuario,senha,role,criado) VALUES(?,?,?,?,?)', 'Gerente', 'gerente', hashPw('bosque2026'), 'gerente', new Date().toISOString());
+}
+
 /* ---------- dados iniciais ---------- */
 export const TIPOS = [
-  { id: 'std', nome: 'Standard Casal · Vista Jardim', cap: 2, tarifa: 260 },
-  { id: 'dlx', nome: 'Deluxe Queen · Varanda', cap: 2, tarifa: 320 },
-  { id: 'tri', nome: 'Triplo', cap: 3, tarifa: 380 },
-  { id: 'fam', nome: 'Quádruplo Família', cap: 4, tarifa: 440 },
+  { id: 'std', nome: 'Standard Casal · Vista Jardim', cap: 2, tarifa: 260, descricao: 'Quarto aconchegante com cama de casal e varanda de frente para o jardim, ideal para quem quer acordar com o canto dos pássaros e tomar o café da manhã a poucos passos. Ar-condicionado, TV, frigobar, Wi-Fi e banheiro privativo. A 150 m da Praia do Cumbuco.' },
+  { id: 'dlx', nome: 'Deluxe Queen · Varanda', cap: 2, tarifa: 320, descricao: 'Quarto no andar superior com cama queen e varanda privativa com vista para o jardim e a piscina, perfeito para casais e lua de mel. 18 m² com ar-condicionado, TV, frigobar, Wi-Fi e banheiro privativo. Café da manhã incluso.' },
+  { id: 'tri', nome: 'Triplo', cap: 3, tarifa: 380, descricao: 'Espaço para até 3 pessoas, com uma cama de casal e uma de solteiro, varanda com mesinha, ar-condicionado, TV, frigobar, Wi-Fi e banheiro privativo. Boa opção para casal com filho ou amigos viajando juntos.' },
+  { id: 'fam', nome: 'Quádruplo Família', cap: 4, tarifa: 440, descricao: 'O quarto mais amplo da pousada, para até 4 pessoas: uma cama de casal e duas de solteiro, com porta direto para o jardim e a piscina. Ar-condicionado, TV, frigobar, Wi-Fi e banheiro privativo. Ideal para famílias, com a piscina infantil bem ao lado.' },
 ];
 const QUARTOS = [['01','std'],['02','std'],['03','std'],['04','std'],['05','dlx'],['06','dlx'],['07','dlx'],['08','dlx'],['09','dlx'],['10','tri'],['11','tri'],['12','fam'],['13','fam']];
 const SET = 'INSERT INTO settings(k,v) VALUES(?,?) ON CONFLICT (k) DO UPDATE SET v=EXCLUDED.v';
@@ -128,7 +137,7 @@ async function seed(mode) {
       checkin_hora: '14:00', checkout_hora: '12:00', webhook_token: randomBytes(12).toString('hex'),
     };
     for (const [k, v] of Object.entries(cfg)) await run(SET, k, v);
-    for (const t of TIPOS) await run('INSERT INTO tipos(id,nome,cap,tarifa) VALUES(?,?,?,?)', t.id, t.nome, t.cap, t.tarifa);
+    for (const t of TIPOS) await run('INSERT INTO tipos(id,nome,cap,tarifa,descricao) VALUES(?,?,?,?,?)', t.id, t.nome, t.cap, t.tarifa, t.descricao);
     for (const [n, t] of QUARTOS) await run('INSERT INTO quartos(num,tipo) VALUES(?,?)', n, t);
 
     if (mode === 'minimal') { // produção: só o administrador (senha em ADMIN_PASSWORD) e a estrutura
@@ -144,6 +153,7 @@ async function seed(mode) {
     const pw = hashPw('bosque2026');
     const U = (nome, usuario, role) => insert('INSERT INTO users(nome,usuario,senha,role,criado) VALUES(?,?,?,?,?)', nome, usuario, pw, role, now);
     await U('Proprietário(a)', 'admin', 'admin');
+    await U('Gerente', 'gerente', 'gerente');
     await U('Recepção', 'recepcao', 'recepcao');
     await U('Governanta', 'governanta', 'governanta');
     const cam = await U('Maria (Camareira)', 'camareira', 'camareira');

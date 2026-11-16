@@ -159,7 +159,7 @@ on('POST', '/api/me/senha', '*', null, async ({ u, body }) => {
 
 /* ---------- API pública (site) ---------- */
 pub('GET', '/api/public/config', async () => ({
-  tipos: (await all('SELECT id,nome,cap,tarifa FROM tipos')),
+  tipos: (await all('SELECT id,nome,cap,tarifa,descricao FROM tipos')),
   passeios: (await all('SELECT id,nome,descricao,preco,duracao,img FROM passeios WHERE ativo=1')),
   sinalPct: num((await cfgAll()).sinal_pct, 30), gatewayDemo: (await cfgAll()).gateway === 'demo',
 }));
@@ -277,7 +277,7 @@ on('GET', '/api/reservas', 'reservas', 'r', async ({ q }) => {
 });
 on('GET', '/api/reservas/:id', 'reservas', 'r', async ({ params }) => {
   const r = (await get('SELECT * FROM reservas WHERE id=?', params.id)); if (!r) bad('Reserva não encontrada.', 404);
-  return { ...decorate(r), pagamentos: (await all('SELECT * FROM pagamentos WHERE reserva_id=? ORDER BY id', r.id)),
+  return { ...(await decorate(r)), pagamentos: (await all('SELECT * FROM pagamentos WHERE reserva_id=? ORDER BY id', r.id)),
     passeios: (await all('SELECT pr.*, p.nome passeio FROM passeio_reservas pr JOIN passeios p ON p.id=pr.passeio_id WHERE reserva_id=?', r.id)) };
 });
 on('POST', '/api/reservas', 'reservas', 'w', async ({ body }) => (await decorate(await tx(async () => await criarReserva(body, { origem: ['balcao', 'telefone', 'whatsapp', 'booking'].includes(body.origem) ? body.origem : 'balcao', status: body.status === 'pendente' ? 'pendente' : 'confirmada' })))));
@@ -444,10 +444,11 @@ on('GET', '/api/estoque/:id/mov', 'estoque', 'r', async ({ params }) => (await a
 /* ---------- Funcionários ---------- */
 on('GET', '/api/perfis', 'funcionarios', 'r', async () => ({ perms: PERMS, labels: ROLE_LABEL }));
 on('GET', '/api/funcionarios', 'funcionarios', 'r', async () => (await all('SELECT id,nome,usuario,role,ativo,criado FROM users ORDER BY ativo DESC, nome')));
-on('POST', '/api/funcionarios', 'funcionarios', 'w', async ({ body }) => {
+on('POST', '/api/funcionarios', 'funcionarios', 'w', async ({ body, u }) => {
   const usuario = str(body.usuario, 30).toLowerCase();
   if (!/^[a-z0-9._-]{3,30}$/.test(usuario)) bad('Usuário: 3 a 30 letras minúsculas, números, ponto, hífen ou _.');
   if (!PERMS[body.role]) bad('Função inválida.');
+  if (body.role === 'admin' && u.role !== 'admin') bad('Só o administrador pode criar outro administrador.', 403);
   if (String(body.senha || '').length < 8) bad('A senha precisa de pelo menos 8 caracteres.');
   if (str(body.nome).length < 2) bad('Informe o nome.');
   if ((await get('SELECT 1 FROM users WHERE usuario=?', usuario))) bad('Esse usuário já existe.', 409);
@@ -457,6 +458,7 @@ on('PUT', '/api/funcionarios/:id', 'funcionarios', 'w', async ({ params, body, u
   const t = (await get('SELECT * FROM users WHERE id=?', params.id)); if (!t) bad('Funcionário não encontrado.', 404);
   const role = body.role ?? t.role, ativo = body.ativo === undefined ? t.ativo : body.ativo ? 1 : 0;
   if (!PERMS[role]) bad('Função inválida.');
+  if (u.role !== 'admin' && (t.role === 'admin' || role === 'admin')) bad('Só o administrador pode alterar contas de administrador.', 403);
   if (t.id === u.id && (role !== 'admin' || !ativo)) bad('Você não pode remover seu próprio acesso de administrador.');
   (await run('UPDATE users SET nome=?, role=?, ativo=? WHERE id=?', str(body.nome ?? t.nome, 80), role, ativo, t.id));
   if (body.senha) { if (String(body.senha).length < 8) bad('A senha precisa de pelo menos 8 caracteres.'); (await run('UPDATE users SET senha=? WHERE id=?', hashPw(body.senha), t.id)); }
@@ -487,10 +489,13 @@ on('POST', '/api/ical/feeds/:id/sync', 'integracoes', 'w', async ({ params }) =>
 on('POST', '/api/ical/sync', 'integracoes', 'w', async () => { await (await syncAll()); return { ok: true }; });
 
 /* ---------- Configurações ---------- */
-on('GET', '/api/config', 'config', 'r', async () => ({ ...cfgAll(), ical_token: undefined, tipos: (await all('SELECT * FROM tipos')) }));
+on('GET', '/api/config', 'config', 'r', async () => ({ ...(await cfgAll()), ical_token: undefined, webhook_token: undefined, tipos: (await all('SELECT * FROM tipos')) }));
 on('PUT', '/api/config', 'config', 'w', async ({ body }) => {
+  if (body.pix_chave !== undefined && str(body.pix_chave).length < 5) bad('Informe a chave Pix.');
+  if (body.sinal_pct !== undefined && !(num(body.sinal_pct, -1) >= 0 && num(body.sinal_pct) <= 100)) bad('O sinal deve ficar entre 0 e 100%.');
+  if (body.gateway !== undefined && !['demo', 'producao'].includes(body.gateway)) bad('Modo de gateway inválido.');
   for (const k of ['pousada', 'cidade', 'pix_chave', 'pix_nome', 'gateway', 'sinal_pct', 'checkin_hora', 'checkout_hora']) if (body[k] !== undefined) (await run('INSERT INTO settings(k,v) VALUES(?,?) ON CONFLICT (k) DO UPDATE SET v=EXCLUDED.v', k, str(body[k], 120)));
-  for (const t of body.tipos || []) (await run('UPDATE tipos SET tarifa=? WHERE id=?', num(t.tarifa), str(t.id, 5)));
+  for (const t of body.tipos || []) (await run('UPDATE tipos SET tarifa=?, descricao=COALESCE(?, descricao) WHERE id=?', num(t.tarifa), t.descricao === undefined ? null : str(t.descricao, 2000), str(t.id, 5)));
   return { ok: true };
 });
 

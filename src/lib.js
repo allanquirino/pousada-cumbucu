@@ -4,13 +4,14 @@
    'w' = ler e alterar · 'r' = somente ler · 'own' = só as próprias tarefas */
 export const PERMS = {
   admin:      { dashboard: 'w', reservas: 'w', checkin: 'w', quartos: 'w', limpeza: 'w', passeios: 'w', estoque: 'w', pagamentos: 'w', funcionarios: 'w', integracoes: 'w', config: 'w' },
+  gerente:    { dashboard: 'w', reservas: 'w', checkin: 'w', quartos: 'w', limpeza: 'w', passeios: 'w', estoque: 'w', pagamentos: 'w', funcionarios: 'w', integracoes: 'w', config: 'w' },
   recepcao:   { dashboard: 'r', reservas: 'w', checkin: 'w', quartos: 'w', limpeza: 'r', passeios: 'w', estoque: 'r', pagamentos: 'w' },
   governanta: { dashboard: 'r', quartos: 'w', limpeza: 'w', estoque: 'w' },
   camareira:  { limpeza: 'own', quartos: 'r' },
   manutencao: { quartos: 'w', estoque: 'w', limpeza: 'r' },
   financeiro: { dashboard: 'r', reservas: 'r', pagamentos: 'w' },
 };
-export const ROLE_LABEL = { admin: 'Administrador', recepcao: 'Recepção', governanta: 'Governanta', camareira: 'Camareira', manutencao: 'Manutenção', financeiro: 'Financeiro' };
+export const ROLE_LABEL = { admin: 'Administrador', gerente: 'Gerente', recepcao: 'Recepção', governanta: 'Governanta', camareira: 'Camareira', manutencao: 'Manutenção', financeiro: 'Financeiro' };
 export const perm = (role, mod) => PERMS[role]?.[mod] || null;
 
 /* ---------- Pix: BR Code estático (EMV) ---------- */
